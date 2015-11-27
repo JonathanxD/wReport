@@ -1,0 +1,71 @@
+plugins {
+    id 'com.github.hierynomus.license' version '0.11.0'
+}
+
+group 'io.github.jonathanxd.wreport'
+version '0.1-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'license'
+
+sourceCompatibility = 1.8
+
+defaultTasks 'licenseFormat', 'build', 'jar', 'uploadArchives'
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'wReport',
+                'Implementation-Version': version
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name 'Sponge maven repo'
+        url 'http://repo.spongepowered.org/maven'
+    }
+}
+
+dependencies {
+    compile "org.spongepowered:spongeapi:2.1-SNAPSHOT"
+}
+
+test {
+    systemProperties 'property': 'value'
+}
+
+uploadArchives {
+    repositories {
+        flatDir {
+            dirs 'repos'
+        }
+    }
+}
+
+license {
+    ext.name = 'wReport'
+    ext.organization = 'TheRealBuggy/JonathanxD (Jonathan Ribeiro Lopes)'
+    ext.description = 'An Sponge plugin to report bad players and start a vote kick.'
+    ext.url = 'https://github.com/JonathanxD/io.github.jonathanxd.wreport.wReport/'
+    ext.year = Calendar.getInstance().get(Calendar.YEAR)
+    ext.email = 'jonathan.scripter@programmer.net'
+
+    exclude "**/*.info"
+    exclude "**/*.iml"
+    exclude "**/*.md"
+    exclude "src/main/resources/**"
+    exclude "src/test/resources/**"
+
+    header file('LICENSE_HEADER')
+
+    sourceSets = project.sourceSets
+
+    ignoreFailures false
+    strictCheck true
+
+    mapping {
+        java = 'SLASHSTAR_STYLE'
+    }
+}
