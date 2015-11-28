@@ -13,26 +13,15 @@ import io.github.jonathanxd.wreport.history.ChatHistory;
 
 public class ChatEvent implements EventListener<MessageSinkEvent.Chat>{
 
-	private Optional<wReport> wReportPlugin = wReport.getwReportPlugin();
-	private Optional<ChatHistory> chatHistory = Optional.empty();
+	private wReport wReportPlugin = wReport.wReportPlugin();
+	private ChatHistory chatHistory = wReportPlugin.chatHistory();
 	
 	@Override
 	public void handle(Chat event) throws Exception {
-		if(wReportPlugin.isPresent()){
-			
-			if(!chatHistory.isPresent()){
-				chatHistory = wReportPlugin.get().getChatHistory();
-			}
-			
-			if(chatHistory.isPresent()){
-				ChatHistory chatHistoryInstance = chatHistory.get();
-				Optional<Player> player = event.getCause().first(Player.class);
-				if(player.isPresent()){
-					chatHistoryInstance.addToHistory(player.get(), Texts.toPlain(event.getMessage()));
-				}
-				
-			}
 		
+		Optional<Player> player = event.getCause().first(Player.class);
+		if(player.isPresent()){
+			chatHistory.addToHistory(player.get(), Texts.toPlain(event.getMessage()));
 		}
 		
 	}

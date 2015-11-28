@@ -14,10 +14,15 @@ import org.spongepowered.api.service.config.DefaultConfig;
 
 import com.google.inject.Inject;
 
+import io.github.jonathanxd.wreport.exception.CannotFoundDeclaration;
 import io.github.jonathanxd.wreport.history.ChatHistory;
+import io.github.jonathanxd.wreport.managers.BaseReasonManager;
+import io.github.jonathanxd.wreport.registry.IReasonRegister;
 import io.github.jonathanxd.wreport.registry.Register;
 import io.github.jonathanxd.wreport.registry.registers.CommandRegister;
+import io.github.jonathanxd.wreport.registry.registers.DefaultReasonsRegister;
 import io.github.jonathanxd.wreport.registry.registers.EventRegister;
+import io.github.jonathanxd.wreport.registry.registers.ServiceRegister;
 import io.github.jonathanxd.wreport.statics.wReportInfos;
 
 @Plugin(name = "wReport", id = "wReport", version = "0.1-SNAPSHOT")
@@ -27,27 +32,39 @@ public class wReport implements wReportInfos {
 	private Game game;
 	private Logger logger;
 	private static wReport wReportPlugin;
-	private ChatHistory chatHistory;
+	private ChatHistory chatHistory;	
+	private IReasonRegister reasonRegister;
 	
 	private Register commandRegister;
+	private Register defaultReasonsRegister;
 	private Register eventRegister;
+	private Register serviceRegister;
 
 	@Listener
 	protected void gamePreInitialization(GamePreInitializationEvent gamePreInitEvent) {
-		// TODO
-		commandRegister = new CommandRegister();
-		eventRegister = new EventRegister();
+		
 		chatHistory = new ChatHistory();
+		reasonRegister = new BaseReasonManager();
+		
+		commandRegister = new CommandRegister();
+		defaultReasonsRegister = new DefaultReasonsRegister();
+		eventRegister = new EventRegister();		
+		serviceRegister = new ServiceRegister();
+		
 		wReportPlugin = this;
 	}
 
 	@Listener
 	protected void gameInitialization(GameInitializationEvent gameInitEvent) {
-		// Event handlers and command registration
+		
 		logger.info("%s initializing...", NAME);
 		
-		commandRegister.register(wReportPlugin, game);
+		
+		defaultReasonsRegister.register(wReportPlugin, game);		
+		serviceRegister.register(wReportPlugin, game);		
+
 		eventRegister.register(wReportPlugin, game);
+		commandRegister.register(wReportPlugin, game);		
 
 		logger.info("%s initialized!", NAME);
 
@@ -84,12 +101,76 @@ public class wReport implements wReportInfos {
 		return logger;
 	}
 
-	public static Optional<wReport> getwReportPlugin() {
-		return wReportPlugin != null ? Optional.of(wReportPlugin) : Optional.empty();
+	protected static Optional<wReport> getwReportPlugin() {
+		return Optional.ofNullable(wReportPlugin);
 	}
 
-	public Optional<ChatHistory> getChatHistory(){
-		return chatHistory != null ? Optional.of(chatHistory) : Optional.empty();
+	protected Optional<ChatHistory> getChatHistory(){
+		return Optional.ofNullable(chatHistory);
+	}
+	
+	protected Optional<IReasonRegister> getReasonRegister() {
+		return Optional.ofNullable(reasonRegister);
+	}
+
+	/**
+	 * Will call {@link #fail()} and throw {@link CannotFoundDeclaration} if declaration is not present.
+	 * @return
+	 * @throws CannotFoundDeclaration
+	 */
+	public static wReport wReportPlugin() {
+		if(!getwReportPlugin().isPresent()){
+			fail();
+			throw new CannotFoundDeclaration("wReportPlugin");
+		}
+		
+		return getwReportPlugin().get();
+	}
+
+	/**
+	 * Will call {@link #fail()} and throw {@link CannotFoundDeclaration} if declaration is not present.
+	 * @return
+	 * @throws CannotFoundDeclaration
+	 */
+	public ChatHistory chatHistory(){
+		if(!getChatHistory().isPresent()){
+			fail();
+			throw new CannotFoundDeclaration("chatHistory");
+		}
+		
+		return getChatHistory().get();
+	}
+	
+	/**
+	 * Will call {@link #fail()} and throw {@link CannotFoundDeclaration} if declaration is not present.
+	 * @return
+	 * @throws CannotFoundDeclaration
+	 */
+	public IReasonRegister reasonRegister() {
+		
+		if(!getReasonRegister().isPresent()){
+			fail();
+			throw new CannotFoundDeclaration("reasonRegister");
+		}
+		
+		return getReasonRegister().get();
+	}
+	
+	public static void fail(){
+		
+		Logger logger = wReportPlugin.getLogger();
+			
+		logger.error("getwReportPlugin: %s ", getwReportPlugin());
+		
+		logger.error("getChatHistory: %s ", wReportPlugin.getChatHistory());
+		logger.error("getReasonRegister: %s ", wReportPlugin.getReasonRegister());
+
+		logger.error("Sponge API: %s ", wReportPlugin.getGame().getPlatform().getApiVersion());
+		logger.error("Platform Execution Type: %s ", wReportPlugin.getGame().getPlatform().getExecutionType());
+		logger.error("Platform Name: %s ", wReportPlugin.getGame().getPlatform().getName());
+		logger.error("Platform Version: %s ", wReportPlugin.getGame().getPlatform().getVersion());
+		logger.error("MC Version: %s ", wReportPlugin.getGame().getPlatform().getMinecraftVersion().getName());
+		
 	}
 	
 }

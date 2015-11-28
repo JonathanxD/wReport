@@ -23,16 +23,11 @@ public class Aggression implements Reason{
 		
 		if(subject.isPresent()){
 			
-			Optional<wReport> wReportPlugin = wReport.getwReportPlugin();
+			wReport wReportPlugin = wReport.wReportPlugin();
 			
-			if(wReportPlugin.isPresent()){
-				
-				Optional<ChatHistory> chatHistory = wReportPlugin.get().getChatHistory();
-				
-				if(chatHistory.isPresent()){
-					return Optional.of(chatHistory.get().getCompleteHistory(subject.get()));
-				}
-			}
+			ChatHistory chatHistory = wReportPlugin.chatHistory();
+			
+			return Optional.of(chatHistory.getCompleteHistory(subject.get()));
 		}
 		
 		return Reason.super.apply(subject);
