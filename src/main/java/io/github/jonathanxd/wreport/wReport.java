@@ -17,6 +17,7 @@ import com.google.inject.Inject;
 import io.github.jonathanxd.wreport.history.ChatHistory;
 import io.github.jonathanxd.wreport.registry.Register;
 import io.github.jonathanxd.wreport.registry.registers.CommandRegister;
+import io.github.jonathanxd.wreport.registry.registers.EventRegister;
 import io.github.jonathanxd.wreport.statics.wReportInfos;
 
 @Plugin(name = "wReport", id = "wReport", version = "0.1-SNAPSHOT")
@@ -29,11 +30,13 @@ public class wReport implements wReportInfos {
 	private ChatHistory chatHistory;
 	
 	private Register commandRegister;
+	private Register eventRegister;
 
 	@Listener
 	protected void gamePreInitialization(GamePreInitializationEvent gamePreInitEvent) {
 		// TODO
 		commandRegister = new CommandRegister();
+		eventRegister = new EventRegister();
 		chatHistory = new ChatHistory();
 		wReportPlugin = this;
 	}
@@ -44,8 +47,7 @@ public class wReport implements wReportInfos {
 		logger.info("%s initializing...", NAME);
 		
 		commandRegister.register(wReportPlugin, game);
-		// registerCommands(this, game);
-		// registerEvents(this, game);
+		eventRegister.register(wReportPlugin, game);
 
 		logger.info("%s initialized!", NAME);
 
