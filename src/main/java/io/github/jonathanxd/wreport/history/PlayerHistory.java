@@ -24,6 +24,16 @@ public class PlayerHistory<T> implements IHistory<Player, T>{
 	public Optional<Collection<T>> getLastHistory(Player owner, int initIndex, int endIndex) {
 		return historyData.get(owner, initIndex, endIndex);
 	}
+	
+	@Override
+	public Optional<Collection<T>> getCompleteHistory(Player owner) {		
+		return historyData.get(owner);
+	}
+	
+	@Override
+	public Optional<Integer> getHistorySize(Player owner) {
+		return historyData.historySize(owner);
+	}
 
 	@Override
 	public void garbageCollect() {

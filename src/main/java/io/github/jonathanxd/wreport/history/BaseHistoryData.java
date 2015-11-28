@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import io.github.jonathanxd.wreport.utils.list.MaxLinkedList;
+
 public class BaseHistoryData<T, E> implements IHistoryData<T, E> {
 
 	Map<T, List<E>> historyDataMap = new HashMap<>();
@@ -30,7 +32,7 @@ public class BaseHistoryData<T, E> implements IHistoryData<T, E> {
 		List<E> mapElementList;
 
 		if (!historyDataMap.containsKey(owner)) {
-			mapElementList = new ArrayList<>();
+			mapElementList = new MaxLinkedList<>(IHistory.recommendedMaxSize);
 		} else {
 			mapElementList = historyDataMap.get(owner);
 		}

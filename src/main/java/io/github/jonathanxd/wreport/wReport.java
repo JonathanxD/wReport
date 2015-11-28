@@ -14,6 +14,7 @@ import org.spongepowered.api.service.config.DefaultConfig;
 
 import com.google.inject.Inject;
 
+import io.github.jonathanxd.wreport.history.ChatHistory;
 import io.github.jonathanxd.wreport.registry.Register;
 import io.github.jonathanxd.wreport.registry.registers.CommandRegister;
 import io.github.jonathanxd.wreport.statics.wReportInfos;
@@ -25,6 +26,7 @@ public class wReport implements wReportInfos {
 	private Game game;
 	private Logger logger;
 	private static wReport wReportPlugin;
+	private ChatHistory chatHistory;
 	
 	private Register commandRegister;
 
@@ -32,6 +34,7 @@ public class wReport implements wReportInfos {
 	protected void gamePreInitialization(GamePreInitializationEvent gamePreInitEvent) {
 		// TODO
 		commandRegister = new CommandRegister();
+		chatHistory = new ChatHistory();
 		wReportPlugin = this;
 	}
 
@@ -83,4 +86,8 @@ public class wReport implements wReportInfos {
 		return wReportPlugin != null ? Optional.of(wReportPlugin) : Optional.empty();
 	}
 
+	public Optional<ChatHistory> getChatHistory(){
+		return chatHistory != null ? Optional.of(chatHistory) : Optional.empty();
+	}
+	
 }
