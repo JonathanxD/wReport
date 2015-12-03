@@ -79,6 +79,7 @@ public class wReport implements wReportInfos {
 		this.logger = logger;
 	}
 
+
 	@Inject
 	private void setGame(Game game) {
 		this.game = game;
