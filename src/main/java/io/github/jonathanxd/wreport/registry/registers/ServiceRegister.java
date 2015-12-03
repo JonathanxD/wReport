@@ -20,8 +20,13 @@ public class ServiceRegister implements Register {
 			game.getServiceManager().setProvider(plugin, IReasonRegister.class, reasonRregister);
 		} catch (ProviderExistsException e) {
 			e.printStackTrace();
+			return false;
 		}
-		return false;
+		return true;
 	}
 
+	@Override
+	public String getName() {
+		return "ServiceRegister";
+	}
 }

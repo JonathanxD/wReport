@@ -29,12 +29,12 @@ import io.github.jonathanxd.wreport.statics.wReportInfos;
 public class wReport implements wReportInfos {
 
 	private File configFolderFile;
+	private ChatHistory chatHistory;
 	private Game game;
 	private Logger logger;
-	private static wReport wReportPlugin;
-	private ChatHistory chatHistory;	
 	private IReasonRegister reasonRegister;
-	
+	private static wReport wReportPlugin;
+
 	private Register commandRegister;
 	private Register defaultReasonsRegister;
 	private Register eventRegister;
@@ -59,12 +59,12 @@ public class wReport implements wReportInfos {
 		
 		logger.info("%s initializing...", NAME);
 		
-		
-		defaultReasonsRegister.register(wReportPlugin, game);		
-		serviceRegister.register(wReportPlugin, game);		
 
-		eventRegister.register(wReportPlugin, game);
-		commandRegister.register(wReportPlugin, game);		
+		defaultReasonsRegister.doRegister(wReportPlugin, game, logger);
+		serviceRegister.doRegister(wReportPlugin, game, logger);
+
+		eventRegister.doRegister(wReportPlugin, game, logger);
+		commandRegister.doRegister(wReportPlugin, game, logger);
 
 		logger.info("%s initialized!", NAME);
 

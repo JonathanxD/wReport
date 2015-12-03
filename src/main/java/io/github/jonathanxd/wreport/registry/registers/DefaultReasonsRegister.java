@@ -22,7 +22,10 @@ public class DefaultReasonsRegister implements Register {
 		
 		return true;
 	}
-	
-	
 
+
+	@Override
+	public String getName() {
+		return "Default Reasons Register";
+	}
 }

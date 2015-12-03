@@ -42,4 +42,8 @@ public class CommandRegister implements Register, wReportInfos {
 		return true;
 	}
 
+	@Override
+	public String getName() {
+		return "CommandRegister";
+	}
 }

@@ -16,4 +16,8 @@ public class EventRegister implements Register {
 		return false;
 	}
 
+	@Override
+	public String getName() {
+		return "EventRegister";
+	}
 }
