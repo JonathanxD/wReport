@@ -1,9 +1,6 @@
 package io.github.jonathanxd.wreport.data;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Created by jonathan on 03/12/15.
@@ -28,5 +25,9 @@ public class BaseData<OWNER, DATA> {
 
     public Map<OWNER, DATA> getDataStoreMap() {
         return Collections.synchronizedMap(dataStoreMap);
+    }
+
+    public Set<Map.Entry<OWNER, DATA>> entrySet(){
+        return dataStoreMap.entrySet();
     }
 }

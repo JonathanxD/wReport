@@ -1,5 +1,6 @@
 package io.github.jonathanxd.wreport.registry.registers;
 
+import io.github.jonathanxd.wreport.reports.IReportManager;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.service.ProviderExistsException;
 
@@ -15,9 +16,11 @@ public class ServiceRegister implements Register {
 		wReport wReportPlugin = wReport.wReportPlugin();
 		
 		IReasonRegister reasonRregister = wReportPlugin.reasonRegister();
+		IReportManager reportManager = wReportPlugin.getReportManager();
 		
 		try {
 			game.getServiceManager().setProvider(plugin, IReasonRegister.class, reasonRregister);
+			game.getServiceManager().setProvider(plugin, IReportManager.class, reportManager);
 		} catch (ProviderExistsException e) {
 			e.printStackTrace();
 			return false;

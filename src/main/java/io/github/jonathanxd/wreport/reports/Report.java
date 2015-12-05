@@ -15,10 +15,14 @@ public class Report {
     private final Optional<Collection<Player>> reportedPlayers;
     private final Optional<Player> reportRequirer;
 
-    public Report(Reason reportReason, Collection<Player> reportedPlayers, Player reportRequirer) {
+    public Report(Reason reportReason, Optional<Collection<Player>> reportedPlayers, Optional<Player> reportRequirer) {
         this.reportReason = reportReason;
-        this.reportedPlayers = Optional.ofNullable(reportedPlayers);
-        this.reportRequirer = Optional.ofNullable(reportRequirer);
+        this.reportedPlayers = reportedPlayers;
+        this.reportRequirer = reportRequirer;
+    }
+
+    public Report(Reason reportReason, Collection<Player> reportedPlayers, Player reportRequirer) {
+        this(reportReason, Optional.ofNullable(reportedPlayers), Optional.ofNullable(reportRequirer));
     }
 
     public Reason getReportReason() {
@@ -61,5 +65,18 @@ public class Report {
         }
 
         return baseData;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = super.hashCode();
+        if(hash < 0){
+            hash = -(hash);
+            hash *= 3;
+        }else{
+            hash *= 2;
+        }
+
+        return hash;
     }
 }

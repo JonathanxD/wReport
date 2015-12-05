@@ -3,6 +3,8 @@ package io.github.jonathanxd.wreport;
 import java.io.File;
 import java.util.Optional;
 
+import io.github.jonathanxd.wreport.data.Reports;
+import io.github.jonathanxd.wreport.reports.IReportManager;
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.event.Listener;
@@ -33,6 +35,7 @@ public class wReport implements wReportInfos {
 	private Game game;
 	private Logger logger;
 	private IReasonRegister reasonRegister;
+	private IReportManager reportManager;
 	private static wReport wReportPlugin;
 
 	private Register commandRegister;
@@ -45,6 +48,7 @@ public class wReport implements wReportInfos {
 		
 		chatHistory = new ChatHistory();
 		reasonRegister = new BaseReasonManager();
+		reportManager = new Reports();
 		
 		commandRegister = new CommandRegister();
 		defaultReasonsRegister = new DefaultReasonsRegister();
@@ -141,7 +145,15 @@ public class wReport implements wReportInfos {
 		
 		return getChatHistory().get();
 	}
-	
+
+	/**
+	 * Return current {@link IReportManager}
+	 * @return Current {@link IReportManager} or null
+	 */
+	public IReportManager getReportManager() {
+		return reportManager;
+	}
+
 	/**
 	 * Will call {@link #fail()} and throw {@link CannotFoundDeclaration} if declaration is not present.
 	 * @return
