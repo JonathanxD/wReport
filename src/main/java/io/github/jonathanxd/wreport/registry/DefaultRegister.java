@@ -17,10 +17,21 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.github.jonathanxd.wreport.statics;
+package io.github.jonathanxd.wreport.registry;
 
-public interface wReportInfos {
-	public static final String ID = "wReport";
-	public static final String NAME = "wReport";
-	public static final String VERSION = "1.0-SNAPSHOT";
+import org.slf4j.Logger;
+import org.spongepowered.api.Game;
+
+public interface DefaultRegister {
+
+	default void doRegister(Object plugin, Game game, Logger logging){
+		if(register(plugin, game)){
+			logging.info(String.format(Register.SUCCESS_MESSAGE, getName()));
+		}else{
+			logging.error(String.format(Register.ERROR_MESSAGE, getName()));
+		}
+	}
+
+	boolean register(Object plugin, Game game);
+	String getName();
 }

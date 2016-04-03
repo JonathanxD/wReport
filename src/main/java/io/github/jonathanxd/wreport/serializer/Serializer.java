@@ -17,10 +17,26 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.github.jonathanxd.wreport.statics;
+package io.github.jonathanxd.wreport.serializer;
 
-public interface wReportInfos {
-	public static final String ID = "wReport";
-	public static final String NAME = "wReport";
-	public static final String VERSION = "1.0-SNAPSHOT";
+import ninja.leaping.configurate.ConfigurationNode;
+
+/**
+ * Created by jonathan on 02/04/16.
+ */
+public interface Serializer<T> {
+
+    void serialize(T object, ConfigurationNode node);
+
+    T deserialize(ConfigurationNode node);
+
+    @SuppressWarnings("unchecked")
+    static <T> void helpSerialize(Object o, Serializer<T> serializer, ConfigurationNode node) {
+        serializer.serialize((T) o, node);
+    }
+
+    @SuppressWarnings("unchecked")
+    static <T> T helpDeserialize(Serializer<?> serializer, ConfigurationNode node) {
+        return (T) serializer.deserialize(node);
+    }
 }

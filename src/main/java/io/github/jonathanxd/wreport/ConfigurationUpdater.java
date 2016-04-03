@@ -17,10 +17,11 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.github.jonathanxd.wreport.statics;
+package io.github.jonathanxd.wreport;
 
-public interface wReportInfos {
-	public static final String ID = "wReport";
-	public static final String NAME = "wReport";
-	public static final String VERSION = "1.0-SNAPSHOT";
+/**
+ * Created by jonathan on 02/04/16.
+ */
+public interface ConfigurationUpdater {
+    void save();
 }

@@ -17,10 +17,33 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.github.jonathanxd.wreport.statics;
+package io.github.jonathanxd.wreport.data;
 
-public interface wReportInfos {
-	public static final String ID = "wReport";
-	public static final String NAME = "wReport";
-	public static final String VERSION = "1.0-SNAPSHOT";
+import com.github.jonathanxd.iutils.object.Reference;
+
+/**
+ * Created by jonathan on 02/04/16.
+ */
+public class Data<T> {
+    private final Reference<?> reference;
+    private final T data;
+
+    @SuppressWarnings("unchecked")
+    Data(Reference<?> reference) {
+        this.reference = reference;
+        this.data = (T) this;
+    }
+
+    public Data(Reference<?> reference, T data) {
+        this.reference = reference;
+        this.data = data;
+    }
+
+    public Reference<?> getReference() {
+        return reference;
+    }
+
+    public T getData() {
+        return data;
+    }
 }

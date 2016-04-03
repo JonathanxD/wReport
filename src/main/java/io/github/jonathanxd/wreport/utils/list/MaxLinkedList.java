@@ -1,9 +1,34 @@
+/*
+ *
+ * 	wReport - An Sponge plugin to report bad players and start a vote kick.
+ *     Copyright (C) 2016 TheRealBuggy/JonathanxD (Jonathan Ribeiro Lopes) <jonathan.scripter@programmer.net>
+ *
+ * 	GNU GPLv3
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU Affero General Public License as published
+ *     by the Free Software Foundation.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU Affero General Public License for more details.
+ *
+ *     You should have received a copy of the GNU Affero General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package io.github.jonathanxd.wreport.utils.list;
+
+import com.google.common.reflect.TypeToken;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
-public class MaxLinkedList<T> extends LinkedList<T>{
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
+
+public class MaxLinkedList<T> extends LinkedList<T> {
 
 	/**
 	 * 
@@ -106,5 +131,35 @@ public class MaxLinkedList<T> extends LinkedList<T>{
 	
 	public int getMaxListSize() {
 		return maxListSize;
+	}
+
+	public static class Serializer implements io.github.jonathanxd.wreport.serializer.Serializer<MaxLinkedList<?>> {
+
+		@Override
+		public void serialize(MaxLinkedList<?> object, ConfigurationNode node) {
+			try {
+				node.setValue(TypeToken.of(List.class), object);
+			} catch (ObjectMappingException e) {
+				e.printStackTrace();
+			}
+
+
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public MaxLinkedList<?> deserialize(ConfigurationNode node) {
+
+			MaxLinkedList maxLinkedList = new MaxLinkedList<>(64);
+
+			try {
+				List list = node.getValue(TypeToken.of(List.class));
+				maxLinkedList.addAll(list);
+			} catch (ObjectMappingException e) {
+				e.printStackTrace();
+			}
+
+			return maxLinkedList;
+		}
 	}
 }

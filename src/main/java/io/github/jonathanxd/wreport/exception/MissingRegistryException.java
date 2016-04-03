@@ -17,10 +17,29 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.github.jonathanxd.wreport.statics;
+package io.github.jonathanxd.wreport.exception;
 
-public interface wReportInfos {
-	public static final String ID = "wReport";
-	public static final String NAME = "wReport";
-	public static final String VERSION = "1.0-SNAPSHOT";
+/**
+ * Created by jonathan on 01/04/16.
+ */
+public class MissingRegistryException extends RuntimeException {
+    public MissingRegistryException() {
+        super();
+    }
+
+    public MissingRegistryException(String message) {
+        super(message);
+    }
+
+    public MissingRegistryException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public MissingRegistryException(Throwable cause) {
+        super(cause);
+    }
+
+    protected MissingRegistryException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }

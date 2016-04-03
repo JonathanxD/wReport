@@ -1,5 +1,7 @@
 plugins {
     id 'com.github.hierynomus.license' version '0.11.0'
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
+
 }
 
 group 'io.github.jonathanxd.wreport'
@@ -8,15 +10,23 @@ version '0.1-SNAPSHOT'
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'license'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 sourceCompatibility = 1.8
 
-defaultTasks 'licenseFormat', 'build', 'jar', 'uploadArchives'
+defaultTasks 'licenseFormat', 'build', 'jar', 'uploadArchives', 'shadowJar'
 
 jar {
     manifest {
         attributes 'Implementation-Title': 'wReport',
                 'Implementation-Version': version
+    }
+}
+
+shadowJar {
+    dependencies {
+        include(dependency("com.github.JonathanxD:JwIUtils:2.0-rev1"))
+        include(dependency("com.github.JonathanxD:WCommands:-SNAPSHOT"))
     }
 }
 
@@ -26,10 +36,13 @@ repositories {
         name 'Sponge maven repo'
         url 'http://repo.spongepowered.org/maven'
     }
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
-    compile "org.spongepowered:spongeapi:2.1-SNAPSHOT"
+    compile "org.spongepowered:spongeapi:4.0.3"
+    compile 'com.github.JonathanxD:JwIUtils:2.0-rev1'
+    compile 'com.github.JonathanxD:WCommands:9d218e5198'
 }
 
 test {

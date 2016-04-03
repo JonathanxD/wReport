@@ -19,31 +19,44 @@
  */
 package io.github.jonathanxd.wreport.registry.registers;
 
+import com.github.jonathanxd.iutils.object.Reference;
+
 import org.spongepowered.api.Game;
 
-import io.github.jonathanxd.wreport.registry.DefaultRegister;
-import io.github.jonathanxd.wreport.registry.IReasonRegister;
-import io.github.jonathanxd.wreport.reports.IReportManager;
-import io.github.jonathanxd.wreport.wReport;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
-public class ServiceRegister implements DefaultRegister {
+import io.github.jonathanxd.wreport.registry.Register;
+import io.github.jonathanxd.wreport.reports.reasons.Reason;
+import io.github.jonathanxd.wreport.serializer.Serializer;
+
+/**
+ * Created by jonathan on 01/04/16.
+ */
+public class SerializersRegister implements Register<Reference<?>, Serializer<?>> {
+
+    Map<Reference<?>, Serializer<?>> map = new HashMap<>();
+
 
     @Override
-    public boolean register(Object plugin, Game game) {
+    public boolean register(Object plugin, Game game, Reference<?> key, Serializer<?> obj) {
 
-        wReport wReportPlugin = wReport.wReportPlugin();
+        if(map.containsKey(key))
+            throw new IllegalArgumentException("Key already registered! Key: '"+key+"' for object: '"+obj+"'");
 
-        IReasonRegister reasonRregister = wReportPlugin.reasonRegister();
-        IReportManager reportManager = wReportPlugin.getReportManager();
-
-        game.getServiceManager().setProvider(plugin, IReasonRegister.class, reasonRregister);
-        game.getServiceManager().setProvider(plugin, IReportManager.class, reportManager);
+        map.put(key, obj);
 
         return true;
     }
 
     @Override
+    public Optional<Serializer<?>> get(Reference<?> key) {
+        return Optional.ofNullable(map.get(key));
+    }
+
+    @Override
     public String getName() {
-        return "ServiceRegister";
+        return "SerializersRegister";
     }
 }

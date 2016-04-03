@@ -17,10 +17,28 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.github.jonathanxd.wreport.statics;
+package io.github.jonathanxd.wreport.config;
 
-public interface wReportInfos {
-	public static final String ID = "wReport";
-	public static final String NAME = "wReport";
-	public static final String VERSION = "1.0-SNAPSHOT";
+import com.google.common.reflect.TypeToken;
+
+import java.util.UUID;
+
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
+
+/**
+ * Created by jonathan on 01/04/16.
+ */
+public class UUIDSerializer implements TypeSerializer<UUID> {
+
+    @Override
+    public UUID deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
+        return UUID.fromString(value.getValue(TypeToken.of(String.class)));
+    }
+
+    @Override
+    public void serialize(TypeToken<?> type, UUID obj, ConfigurationNode value) throws ObjectMappingException {
+        value.setValue(obj.toString());
+    }
 }
