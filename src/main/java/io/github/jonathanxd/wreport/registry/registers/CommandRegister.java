@@ -1,23 +1,34 @@
 /*
+ *      wReport - An Sponge plugin to report bad players and start a vote kick. <https://github.com/JonathanxD/io.github.jonathanxd.wreport.wReport/>
  *
- * 	wReport - An Sponge plugin to report bad players and start a vote kick.
- *     Copyright (C) 2016 TheRealBuggy/JonathanxD (Jonathan Ribeiro Lopes) <jonathan.scripter@programmer.net>
+ *         The MIT License (MIT)
  *
- * 	GNU GPLv3
+ *      Copyright (c) 2016 TheRealBuggy/JonathanxD (Jonathan Ribeiro Lopes) <jonathan.scripter@programmer.net>
+ *      Copyright (c) contributors
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as published
- *     by the Free Software Foundation.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Affero General Public License for more details.
+ *      Permission is hereby granted, free of charge, to any person obtaining a copy
+ *      of this software and associated documentation files (the "Software"), to deal
+ *      in the Software without restriction, including without limitation the rights
+ *      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *      copies of the Software, and to permit persons to whom the Software is
+ *      furnished to do so, subject to the following conditions:
  *
- *     You should have received a copy of the GNU Affero General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *      The above copyright notice and this permission notice shall be included in
+ *      all copies or substantial portions of the Software.
+ *
+ *      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *      THE SOFTWARE.
  */
 package io.github.jonathanxd.wreport.registry.registers;
+
+import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.wcommands.WCommandCommon;
 
 import org.spongepowered.api.Game;
 import org.spongepowered.api.command.args.GenericArguments;
@@ -25,10 +36,13 @@ import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 
+import io.github.jonathanxd.wreport.actions.Action;
+import io.github.jonathanxd.wreport.commands.AdminCloseReportCommand;
 import io.github.jonathanxd.wreport.commands.AdminReportCommand;
 import io.github.jonathanxd.wreport.commands.PlayerReportCommand;
 import io.github.jonathanxd.wreport.registry.IReasonRegister;
 import io.github.jonathanxd.wreport.registry.DefaultRegister;
+import io.github.jonathanxd.wreport.registry.Register;
 import io.github.jonathanxd.wreport.reports.IReportManager;
 import io.github.jonathanxd.wreport.statics.wReportInfos;
 import io.github.jonathanxd.wreport.wReport;
@@ -36,9 +50,13 @@ import io.github.jonathanxd.wreport.wReport;
 public class CommandRegister implements DefaultRegister, wReportInfos {
 
     private final IReportManager reportManager;
+    private final WCommandCommon wCommandCommon;
+    private final Register<Reference<? extends Action>, Action> actionRegister;
 
-    public CommandRegister(IReportManager reportManager) {
+    public CommandRegister(IReportManager reportManager, WCommandCommon wCommandCommon, Register<Reference<? extends Action>, Action> actionRegister) {
         this.reportManager = reportManager;
+        this.wCommandCommon = wCommandCommon;
+        this.actionRegister = actionRegister;
     }
 
     @Override
@@ -46,13 +64,35 @@ public class CommandRegister implements DefaultRegister, wReportInfos {
         wReport wReportPlugin = wReport.wReportPlugin();
         IReasonRegister reasonRegister = wReportPlugin.reasonRegister();
 
-        CommandSpec adminReportCommand = CommandSpec.builder()
-                .description(Text.builder("Open a GUI to show all or specific player report(s)!").color(TextColors.GREEN).build())
-                .permission(NAME.toLowerCase() + ".admin.reports")
+        CommandSpec show = CommandSpec.builder()
+                .description(Text.builder("Show all or player specific report(s)!").color(TextColors.GREEN).build())
+                .permission(NAME.toLowerCase() + ".admin.reports.show")
                 .arguments(
                         GenericArguments.optional(GenericArguments.player(Text.of("player")))
                 )
-                .executor(new AdminReportCommand(game, reportManager)).build();
+                .executor(new AdminReportCommand(game, reportManager))
+                .build();
+
+        CommandSpec close = CommandSpec.builder()
+                .description(Text.of(TextColors.GREEN, "Close report by id"))
+                .permission(NAME.toLowerCase() + ".admin.reports.close")
+                .arguments(
+                        GenericArguments.longNum(Text.of("id")),
+                        GenericArguments.choices(Text.of("action"), actionRegister.applyValueToKey(Action::getName), true),
+                        GenericArguments.remainingJoinedStrings(Text.of("data"))
+                )
+                .executor(new AdminCloseReportCommand(game, reportManager, wCommandCommon, actionRegister))
+                .build();
+
+        CommandSpec adminReportCommand = CommandSpec.builder()
+                .description(Text.builder("Show all or player specific report(s)!").color(TextColors.GREEN).build())
+                .permission(NAME.toLowerCase() + ".admin.reports")
+                .child(show, "show")
+                .child(close, "close")
+                .build();
+
+
+
         game.getCommandManager().register(plugin, adminReportCommand, "wradmin", "wreportadmin", "reportadmin", "wradm");
 
         CommandSpec playerReportCommand = CommandSpec.builder()

@@ -1,21 +1,29 @@
 /*
+ *      wReport - An Sponge plugin to report bad players and start a vote kick. <https://github.com/JonathanxD/io.github.jonathanxd.wreport.wReport/>
  *
- * 	wReport - An Sponge plugin to report bad players and start a vote kick.
- *     Copyright (C) 2016 TheRealBuggy/JonathanxD (Jonathan Ribeiro Lopes) <jonathan.scripter@programmer.net>
+ *         The MIT License (MIT)
  *
- * 	GNU GPLv3
+ *      Copyright (c) 2016 TheRealBuggy/JonathanxD (Jonathan Ribeiro Lopes) <jonathan.scripter@programmer.net>
+ *      Copyright (c) contributors
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as published
- *     by the Free Software Foundation.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Affero General Public License for more details.
+ *      Permission is hereby granted, free of charge, to any person obtaining a copy
+ *      of this software and associated documentation files (the "Software"), to deal
+ *      in the Software without restriction, including without limitation the rights
+ *      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *      copies of the Software, and to permit persons to whom the Software is
+ *      furnished to do so, subject to the following conditions:
  *
- *     You should have received a copy of the GNU Affero General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *      The above copyright notice and this permission notice shall be included in
+ *      all copies or substantial portions of the Software.
+ *
+ *      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *      THE SOFTWARE.
  */
 package io.github.jonathanxd.wreport.reports;
 
@@ -27,7 +35,6 @@ import org.spongepowered.api.entity.living.player.User;
 import java.util.Collection;
 import java.util.Optional;
 
-import io.github.jonathanxd.wreport.actions.Action;
 import io.github.jonathanxd.wreport.data.BaseData;
 import io.github.jonathanxd.wreport.data.Data;
 import io.github.jonathanxd.wreport.reports.reasons.Reason;
@@ -37,6 +44,7 @@ import io.github.jonathanxd.wreport.reports.reasons.Reason;
  */
 public class Report {
 
+    private final long id;
     private final ReportType reportType;
     private final Reason reportReason;
     private final Collection<User> reportedPlayers;
@@ -45,7 +53,8 @@ public class Report {
 
     private CloseReportData closeReportData = null;
 
-    public Report(ReportType reportType, Reason reportReason, Collection<User> reportedPlayers, User reportApplicant, String description) {
+    public Report(long id, ReportType reportType, Reason reportReason, Collection<User> reportedPlayers, User reportApplicant, String description) {
+        this.id = id;
         this.reportType = reportType;
         this.reportReason = reportReason;
         this.reportedPlayers = reportedPlayers;
@@ -54,8 +63,14 @@ public class Report {
     }
 
     public void setCloseReportData(CloseReportData closeReportData) {
-        java.util.Objects.requireNonNull(this.closeReportData, "Already closed!");
+        if(this.closeReportData != null) {
+            throw new IllegalStateException("Already closed!");
+        }
         this.closeReportData = closeReportData;
+    }
+
+    public Optional<CloseReportData> getCloseReportData() {
+        return Optional.ofNullable(closeReportData);
     }
 
     public ReportType getReportType() {
@@ -135,11 +150,16 @@ public class Report {
     @Override
     public String toString() {
         return Objects.toStringHelper(Report.class)
+                .add("id", getId())
                 .add("type", reportType.getName())
                 .add("reason", reportReason)
                 .add("reportedPlayers", reportedPlayers)
                 .add("requirer", reportApplicant)
                 .add("description", description)
                 .toString();
+    }
+
+    public long getId() {
+        return id;
     }
 }

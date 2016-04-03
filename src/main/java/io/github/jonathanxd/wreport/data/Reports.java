@@ -1,27 +1,36 @@
 /*
+ *      wReport - An Sponge plugin to report bad players and start a vote kick. <https://github.com/JonathanxD/io.github.jonathanxd.wreport.wReport/>
  *
- * 	wReport - An Sponge plugin to report bad players and start a vote kick.
- *     Copyright (C) 2016 TheRealBuggy/JonathanxD (Jonathan Ribeiro Lopes) <jonathan.scripter@programmer.net>
+ *         The MIT License (MIT)
  *
- * 	GNU GPLv3
+ *      Copyright (c) 2016 TheRealBuggy/JonathanxD (Jonathan Ribeiro Lopes) <jonathan.scripter@programmer.net>
+ *      Copyright (c) contributors
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as published
- *     by the Free Software Foundation.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Affero General Public License for more details.
+ *      Permission is hereby granted, free of charge, to any person obtaining a copy
+ *      of this software and associated documentation files (the "Software"), to deal
+ *      in the Software without restriction, including without limitation the rights
+ *      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *      copies of the Software, and to permit persons to whom the Software is
+ *      furnished to do so, subject to the following conditions:
  *
- *     You should have received a copy of the GNU Affero General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *      The above copyright notice and this permission notice shall be included in
+ *      all copies or substantial portions of the Software.
+ *
+ *      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *      THE SOFTWARE.
  */
 package io.github.jonathanxd.wreport.data;
 
 import com.github.jonathanxd.iutils.object.Reference;
 
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.text.channel.MessageReceiver;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,14 +38,18 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
 import io.github.jonathanxd.wreport.ConfigurationUpdater;
 import io.github.jonathanxd.wreport.actions.Action;
+import io.github.jonathanxd.wreport.actions.ActionData;
 import io.github.jonathanxd.wreport.actions.ActionProcessor;
 import io.github.jonathanxd.wreport.filters.AllPlayersReportedByFilter;
 import io.github.jonathanxd.wreport.filters.PlayerReportsFilter;
+import io.github.jonathanxd.wreport.list.ReportList;
 import io.github.jonathanxd.wreport.registry.Register;
 import io.github.jonathanxd.wreport.reports.CloseReportData;
 import io.github.jonathanxd.wreport.reports.IReportManager;
@@ -50,11 +63,11 @@ import io.github.jonathanxd.wreport.reports.reasons.Reason;
 public final class Reports extends BaseData<Report, BaseData<User, Data<?>>> implements IReportManager {
 
     private final ConfigurationUpdater configurationUpdater;
-    private final Register<Reference<?>, Action> actionRegister;
+    private final Register<Reference<? extends Action>, Action> actionRegister;
     private final ActionProcessor actionProcessor;
-    List<Report> reportList = new LinkedList<>();
+    List<Report> reportList = new ReportList();
 
-    public Reports(ConfigurationUpdater configurationUpdater, Register<Reference<?>, Action> actionRegister, ActionProcessor actionProcessor) {
+    public Reports(ConfigurationUpdater configurationUpdater, Register<Reference<? extends Action>, Action> actionRegister, ActionProcessor actionProcessor) {
         this.configurationUpdater = configurationUpdater;
         this.actionRegister = actionRegister;
         this.actionProcessor = actionProcessor;
@@ -62,7 +75,7 @@ public final class Reports extends BaseData<Report, BaseData<User, Data<?>>> imp
 
     @Override
     public Report report(ReportType reportType, @Nullable User source, @Nullable Collection<User> reportedUsers, Reason reportReason, String description) {
-        Report report = new Report(reportType, reportReason, reportedUsers, source, description);
+        Report report = new Report(getFreeId(), reportType, reportReason, reportedUsers, source, description);
 
         reportList.add(report);
 
@@ -76,9 +89,15 @@ public final class Reports extends BaseData<Report, BaseData<User, Data<?>>> imp
     }
 
     @Override
-    public void endReport(Report report, User judge, String description, Action action, String actionData) {
-        report.setCloseReportData(new CloseReportData(judge, description, action));
-        actionProcessor.process(report, judge, report.getReportedPlayers().orElse(Collections.emptyList()), action, actionData);
+    public boolean endReport(Report report, User judge, String description, Action action, String actionData, Predicate<User> affectedUserPredicate, MessageReceiver messageReceiver) {
+        Optional<ActionData> actionDataOptional = actionProcessor.process(report, messageReceiver, judge, report.getReportedPlayers().orElse(Collections.emptyList()).stream().filter(affectedUserPredicate).collect(Collectors.toList()), action, actionData);
+
+        if(actionDataOptional.isPresent()) {
+            report.setCloseReportData(new CloseReportData(judge, description, actionDataOptional.get()));
+            return true;
+        }
+
+        return false;
     }
 
 
@@ -102,7 +121,7 @@ public final class Reports extends BaseData<Report, BaseData<User, Data<?>>> imp
     }
 
     @Override
-    public Collection<Report> getAllPlayersReportedBy(User player) {
+    public Collection<Report> getAllReportedBy(User player) {
         final Collection<Report> reportedPlayersBy = new ArrayList<>();
 
         reportList.stream().filter(new AllPlayersReportedByFilter(player)).forEach(reportedPlayersBy::add);
@@ -126,12 +145,40 @@ public final class Reports extends BaseData<Report, BaseData<User, Data<?>>> imp
     }
 
     @Override
-    public void addNewAppliedReport(Report report, BaseData<User, Data<?>> reportBaseData, boolean save) {
+    public Report addNewAppliedReport(Report report, BaseData<User, Data<?>> reportBaseData, boolean save) {
+
+        if(get(report.getId()).isPresent()) {
+            report = recreate(getFreeId(), report);
+        }
+
         reportList.add(report);
 
         if (save) configurationUpdater.save();
 
         super.setOwnerData(report, reportBaseData);
+
+        return report;
+    }
+
+    private Report recreate(long id, Report report) {
+        return new Report(id, report.getReportType(), report.getReportReason(), report.getReportedPlayers().orElse(null), report.getReportApplicant().orElse(null), report.getDescription());
+    }
+
+    @Override
+    public long getFreeId() {
+
+        long id = 0;
+
+        while(get(id).isPresent()) {
+            ++id;
+        }
+
+        return id;
+    }
+
+    @Override
+    public Optional<Report> get(long id) {
+        return reportList.stream().filter(c -> c.getId() == id).findAny();
     }
 
     @Override

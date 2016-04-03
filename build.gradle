@@ -25,8 +25,8 @@ jar {
 
 shadowJar {
     dependencies {
-        include(dependency("com.github.JonathanxD:JwIUtils:2.0-rev1"))
-        include(dependency("com.github.JonathanxD:WCommands:-SNAPSHOT"))
+        include(dependency("com.github.JonathanxD:JwIUtils"))
+        include(dependency("com.github.JonathanxD:WCommands"))
     }
 }
 
@@ -42,7 +42,7 @@ repositories {
 dependencies {
     compile "org.spongepowered:spongeapi:4.0.3"
     compile 'com.github.JonathanxD:JwIUtils:2.0-rev1'
-    compile 'com.github.JonathanxD:WCommands:9d218e5198'
+    compile 'com.github.JonathanxD:WCommands:856d78447c'
 }
 
 test {

@@ -1,21 +1,29 @@
 /*
+ *      wReport - An Sponge plugin to report bad players and start a vote kick. <https://github.com/JonathanxD/io.github.jonathanxd.wreport.wReport/>
  *
- * 	wReport - An Sponge plugin to report bad players and start a vote kick.
- *     Copyright (C) 2016 TheRealBuggy/JonathanxD (Jonathan Ribeiro Lopes) <jonathan.scripter@programmer.net>
+ *         The MIT License (MIT)
  *
- * 	GNU GPLv3
+ *      Copyright (c) 2016 TheRealBuggy/JonathanxD (Jonathan Ribeiro Lopes) <jonathan.scripter@programmer.net>
+ *      Copyright (c) contributors
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as published
- *     by the Free Software Foundation.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Affero General Public License for more details.
+ *      Permission is hereby granted, free of charge, to any person obtaining a copy
+ *      of this software and associated documentation files (the "Software"), to deal
+ *      in the Software without restriction, including without limitation the rights
+ *      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *      copies of the Software, and to permit persons to whom the Software is
+ *      furnished to do so, subject to the following conditions:
  *
- *     You should have received a copy of the GNU Affero General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *      The above copyright notice and this permission notice shall be included in
+ *      all copies or substantial portions of the Software.
+ *
+ *      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *      THE SOFTWARE.
  */
 package io.github.jonathanxd.wreport.commands;
 
@@ -34,9 +42,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import io.github.jonathanxd.wreport.actions.ActionData;
 import io.github.jonathanxd.wreport.data.BaseData;
 import io.github.jonathanxd.wreport.data.Data;
+import io.github.jonathanxd.wreport.reports.CloseReportData;
 import io.github.jonathanxd.wreport.reports.IReportManager;
 import io.github.jonathanxd.wreport.reports.Report;
 import io.github.jonathanxd.wreport.reports.ReportType;
@@ -97,6 +108,8 @@ public class AdminReportCommand extends wCommandBase implements CommandExecutor 
             Optional<User> reportRequirer = report.getReportApplicant();
 
             String reporter = reportRequirer.isPresent() ? reportRequirer.get().getName() : "None";
+
+            src.sendMessage(Text.of(TextColors.GREEN, "Id: ", TextColors.AQUA, report.getId()));
 
             src.sendMessage(Text.of(TextColors.GREEN, "Reason:", TextColors.AQUA, " ", reportReason.reasonMessage(),
                     TextColors.GREEN, " Severity:", TextColors.RED, " ", reportReason.severity().orElse(Severity.MEDIUM),
@@ -166,6 +179,32 @@ public class AdminReportCommand extends wCommandBase implements CommandExecutor 
 
             }
 
+            if(report.getCloseReportData().isPresent()) {
+                CloseReportData closeReportData = report.getCloseReportData().get();
+
+                src.sendMessage(Text.of(TextColors.RED, "  Closed "));
+
+                ActionData actionData = closeReportData.getAction();
+
+                String judge = closeReportData.getJudge().isPresent() ? closeReportData.getJudge().get().getName() : "Console";
+
+                src.sendMessage(Text.of(TextColors.GREEN, "   Judge:", " ", TextColors.AQUA, judge));
+
+                src.sendMessage(Text.of(TextColors.GREEN, "   Description:", " ", TextColors.AQUA, closeReportData.getDescription()));
+
+
+                String causer = actionData.getCauser().isPresent() ? actionData.getCauser().get().getName() : "Console";
+
+                src.sendMessage(Text.of(TextColors.GREEN, "   Action:", " ", TextColors.AQUA, actionData.getReference().toString()));
+
+                src.sendMessage(Text.of(TextColors.GREEN, "   Arguments:", " ", TextColors.AQUA, actionData.getActionArguments().toString()));
+
+                src.sendMessage(Text.of(TextColors.GREEN, "   Causer:", " ", TextColors.AQUA, causer));
+
+                src.sendMessage(Text.of(TextColors.GREEN, "   Affected Users:", " ", TextColors.AQUA, actionData.getAffectedUsers().stream().map(User::getName).collect(Collectors.toList()).toString()));
+
+
+            }
 
             src.sendMessage(Text.of(TextColors.AQUA, "--------------------"));
 

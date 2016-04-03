@@ -1,23 +1,31 @@
 /*
+ *      wReport - An Sponge plugin to report bad players and start a vote kick. <https://github.com/JonathanxD/io.github.jonathanxd.wreport.wReport/>
  *
- * 	wReport - An Sponge plugin to report bad players and start a vote kick.
- *     Copyright (C) 2016 TheRealBuggy/JonathanxD (Jonathan Ribeiro Lopes) <jonathan.scripter@programmer.net>
+ *         The MIT License (MIT)
  *
- * 	GNU GPLv3
+ *      Copyright (c) 2016 TheRealBuggy/JonathanxD (Jonathan Ribeiro Lopes) <jonathan.scripter@programmer.net>
+ *      Copyright (c) contributors
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as published
- *     by the Free Software Foundation.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Affero General Public License for more details.
+ *      Permission is hereby granted, free of charge, to any person obtaining a copy
+ *      of this software and associated documentation files (the "Software"), to deal
+ *      in the Software without restriction, including without limitation the rights
+ *      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *      copies of the Software, and to permit persons to whom the Software is
+ *      furnished to do so, subject to the following conditions:
  *
- *     You should have received a copy of the GNU Affero General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *      The above copyright notice and this permission notice shall be included in
+ *      all copies or substantial portions of the Software.
+ *
+ *      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *      THE SOFTWARE.
  */
-package io.github.jonathanxd.wreport.data;
+package io.github.jonathanxd.wreport.config;
 
 import com.google.common.reflect.TypeToken;
 
@@ -30,13 +38,22 @@ import org.spongepowered.api.service.user.UserStorageService;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
 
 import io.github.jonathanxd.wreport.ConfigurationUpdater;
+import io.github.jonathanxd.wreport.actions.Action;
+import io.github.jonathanxd.wreport.actions.ActionData;
+import io.github.jonathanxd.wreport.actions.ActionProcessor;
+import io.github.jonathanxd.wreport.data.BaseData;
+import io.github.jonathanxd.wreport.data.Data;
+import io.github.jonathanxd.wreport.data.Reports;
+import io.github.jonathanxd.wreport.registry.Register;
 import io.github.jonathanxd.wreport.registry.registers.SerializersRegister;
+import io.github.jonathanxd.wreport.reports.CloseReportData;
 import io.github.jonathanxd.wreport.reports.IReportManager;
 import io.github.jonathanxd.wreport.reports.Report;
 import io.github.jonathanxd.wreport.reports.ReportType;
@@ -49,12 +66,21 @@ import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
 /**
  * Created by jonathan on 03/12/15.
  */
-public class PlayerReportData implements TypeSerializer<IReportManager> {
+public class PlayerReportSerializer implements TypeSerializer<IReportManager> {
 
     private static final String reportNodeString = "reports";
     private static final String singleReportNodeFormat = "report%s";
     private static final String requesterNode = "requester";
     private static final String typeNode = "type";
+    private static final String idNode = "id";
+
+    private static final String closedNode = "closed";
+    private static final String causerNode = "causer";
+
+    private static final String actionDataNode = "actionData";
+    private static final String affectedPlayersNode = "affectedPlayers";
+    private static final String argumentsNode = "arguments";
+
     private static final String reasonNode = "reason";
     private static final String involvedNode = "involved";
     private static final String reportDataNode = "reportData";
@@ -66,16 +92,21 @@ public class PlayerReportData implements TypeSerializer<IReportManager> {
     private final SerializersRegister serializersRegister;
     private final UserStorageService userStorageService;
     private final ConfigurationUpdater configurationUpdater;
+    private final Register<Reference<? extends Action>, Action> actionRegister;
+    private final ActionProcessor actionProcessor;
 
-    public PlayerReportData(Game game, Logger logger, SerializersRegister serializersRegister, UserStorageService userStorageService, ConfigurationUpdater configurationUpdater) {
+    public PlayerReportSerializer(Game game, Logger logger, SerializersRegister serializersRegister, UserStorageService userStorageService, ConfigurationUpdater configurationUpdater, Register<Reference<? extends Action>, Action> actionRegister, ActionProcessor actionProcessor) {
         this.game = game;
         this.logger = logger;
         this.serializersRegister = serializersRegister;
         this.userStorageService = userStorageService;
         this.configurationUpdater = configurationUpdater;
+        this.actionRegister = actionRegister;
+        this.actionProcessor = actionProcessor;
     }
 
 
+    @SuppressWarnings("unchecked")
     @Override
     public IReportManager deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
 
@@ -85,6 +116,9 @@ public class PlayerReportData implements TypeSerializer<IReportManager> {
 
 
         for (ConfigurationNode currentReportNode : reportsNode.getChildrenMap().values()) {
+
+
+            long id = currentReportNode.getNode(idNode).getLong();
 
             Optional<User> requesterPlayer = Optional.empty();
 
@@ -123,6 +157,7 @@ public class PlayerReportData implements TypeSerializer<IReportManager> {
 
                 involvedPlayers = Optional.of(involvedPlayerList);
             }
+
 
             BaseData<User, Data<?>> baseReportData = new BaseData<>();
 
@@ -163,7 +198,60 @@ public class PlayerReportData implements TypeSerializer<IReportManager> {
             }
 
 
-            Report report = new Report(reportType, reportReason, involvedPlayers.orElse(null), requesterPlayer.orElse(null), description);
+            Report report = new Report(id, reportType, reportReason, involvedPlayers.orElse(null), requesterPlayer.orElse(null), description);
+
+            // DESERIALIZE CLOSED REPORT DATA
+
+            Optional<CloseReportData> closeReportData = Optional.empty();
+
+            ConfigurationNode closedReportNode = currentReportNode.getNode(closedNode);
+
+            if(!closedReportNode.isVirtual()) {
+
+                User causer;
+                String closedDescription;
+                ActionData actionData;
+
+
+                ConfigurationNode causerClosedNode = closedReportNode.getNode(causerNode);
+
+
+                causer = causerClosedNode.getValue(TypeToken.of(User.class), (User) null);
+
+                closedDescription = closedReportNode.getNode(descriptionNode).getValue(TypeToken.of(String.class), (String) null);
+
+
+                ConfigurationNode actionDataNd = closedReportNode.getNode(actionDataNode);
+
+                User actionCauser = actionDataNd.getNode(causerNode).getValue(TypeToken.of(User.class), (User) null);
+
+                Collection<User> affectedPlayers = actionDataNd.getNode(affectedPlayersNode).getValue(new TypeToken<Collection<User>>() {}, Collections.emptyList());
+
+                Collection<String> actionArguments = actionDataNd.getNode(argumentsNode).getValue(new TypeToken<Collection<String>>() {}, Collections.emptyList());
+
+                Reference<? extends Action> reference = null;
+
+                try {
+
+                    ConfigurationNode typeActionNode = actionDataNd.getNode(typeNode);
+
+                    if(!typeActionNode.isVirtual()) {
+                        reference = (Reference<? extends Action>) Reference.fromFullString(typeActionNode.getValue(TypeToken.of(String.class))).get(0);
+                    }
+                } catch (ClassNotFoundException e) {
+                    throw new ObjectMappingException("Cannot translate reference!", e);
+                }
+
+                actionData = new ActionData(reference, actionCauser, affectedPlayers, actionArguments, report);
+
+                closeReportData = Optional.of(new CloseReportData(causer, closedDescription, actionData));
+            }
+
+            // /DESERIALIZE CLOSED REPORT DATA
+
+            if(closeReportData.isPresent()) {
+                report.setCloseReportData(closeReportData.get());
+            }
 
             logger.info("Loaded report: "+report);
 
@@ -186,6 +274,8 @@ public class PlayerReportData implements TypeSerializer<IReportManager> {
             final String currentReportNodeString = String.format(singleReportNodeFormat, ++reportId);
 
             ConfigurationNode currentReportNode = value.getNode(reportNodeString, currentReportNodeString);
+
+            currentReportNode.getNode(idNode).setValue(report.getId());
 
             if (report.getReportApplicant().isPresent()) {
                 User reportRequester = report.getReportApplicant().get();
@@ -210,6 +300,48 @@ public class PlayerReportData implements TypeSerializer<IReportManager> {
                 configInvolvedNode.setValue(new TypeToken<List<UUID>>() {
                 }, uuidList);
             }
+
+            // SERIALIZE CLOSED REPORT DATA
+
+            Optional<CloseReportData> closeReportDataOpt = report.getCloseReportData();
+
+            if(closeReportDataOpt.isPresent()) {
+
+                CloseReportData closeReportData = closeReportDataOpt.get();
+
+                ConfigurationNode closeNode = currentReportNode.getNode(closedNode);
+
+                if(closeReportData.getJudge().isPresent()) {
+                    closeNode.getNode(causerNode).setValue(TypeToken.of(User.class), closeReportData.getJudge().get());
+                }
+
+                if(closeReportData.getDescription() != null) {
+                    closeNode.getNode(descriptionNode).setValue(TypeToken.of(String.class), closeReportData.getDescription());
+                }
+
+                ConfigurationNode actionDataNd = closeNode.getNode(actionDataNode);
+
+                ActionData actionData = closeReportData.getAction();
+
+                if(actionData.getCauser().isPresent()) {
+                    actionDataNd.getNode(causerNode).setValue(TypeToken.of(User.class), actionData.getCauser().get());
+                }
+
+                if(actionData.getAffectedUsers() != null) {
+                    actionDataNd.getNode(affectedPlayersNode).setValue(new TypeToken<Collection<User>>() {}, actionData.getAffectedUsers());
+                }
+
+                if(actionData.getReference() != null) {
+                    actionDataNd.getNode(typeNode).setValue(TypeToken.of(String.class), actionData.getReference().toFullString());
+                }
+
+                if(actionData.getActionArguments() != null) {
+                    actionDataNd.getNode(argumentsNode).setValue(new TypeToken<Collection<String>>() {}, actionData.getActionArguments());
+                }
+
+            }
+
+            // /SERIALIZE CLOSED REPORT DATA
 
             Optional<BaseData<User, Data<?>>> baseReportData;
             if ((baseReportData = reportManager.getSingleReportData(report)).isPresent()) {

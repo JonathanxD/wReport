@@ -1,21 +1,29 @@
 /*
+ *      wReport - An Sponge plugin to report bad players and start a vote kick. <https://github.com/JonathanxD/io.github.jonathanxd.wreport.wReport/>
  *
- * 	wReport - An Sponge plugin to report bad players and start a vote kick.
- *     Copyright (C) 2016 TheRealBuggy/JonathanxD (Jonathan Ribeiro Lopes) <jonathan.scripter@programmer.net>
+ *         The MIT License (MIT)
  *
- * 	GNU GPLv3
+ *      Copyright (c) 2016 TheRealBuggy/JonathanxD (Jonathan Ribeiro Lopes) <jonathan.scripter@programmer.net>
+ *      Copyright (c) contributors
  *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as published
- *     by the Free Software Foundation.
  *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Affero General Public License for more details.
+ *      Permission is hereby granted, free of charge, to any person obtaining a copy
+ *      of this software and associated documentation files (the "Software"), to deal
+ *      in the Software without restriction, including without limitation the rights
+ *      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *      copies of the Software, and to permit persons to whom the Software is
+ *      furnished to do so, subject to the following conditions:
  *
- *     You should have received a copy of the GNU Affero General Public License
- *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *      The above copyright notice and this permission notice shall be included in
+ *      all copies or substantial portions of the Software.
+ *
+ *      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *      THE SOFTWARE.
  */
 package io.github.jonathanxd.wreport;
 
@@ -25,10 +33,12 @@ import com.google.inject.Inject;
 import com.github.jonathanxd.iutils.object.Reference;
 import com.github.jonathanxd.wcommands.ext.reflect.ReflectionAPI;
 import com.github.jonathanxd.wcommands.ext.reflect.processor.ReflectionCommandProcessor;
+import com.github.jonathanxd.wcommands.processor.CommonProcessor;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.config.DefaultConfig;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GameInitializationEvent;
 import org.spongepowered.api.event.game.state.GamePostInitializationEvent;
@@ -49,7 +59,8 @@ import io.github.jonathanxd.wreport.actions.BanAction;
 import io.github.jonathanxd.wreport.config.ReasonSerializer;
 import io.github.jonathanxd.wreport.config.ReportTypeSerializer;
 import io.github.jonathanxd.wreport.config.UUIDSerializer;
-import io.github.jonathanxd.wreport.data.PlayerReportData;
+import io.github.jonathanxd.wreport.config.PlayerReportSerializer;
+import io.github.jonathanxd.wreport.config.UserSerializer;
 import io.github.jonathanxd.wreport.data.Reports;
 import io.github.jonathanxd.wreport.exception.CannotFoundDeclaration;
 import io.github.jonathanxd.wreport.history.ChatHistory;
@@ -100,7 +111,7 @@ public class wReport implements wReportInfos, ConfigurationUpdater {
     private DefaultRegister serviceRegister;
 
     private Register<Class<? extends Reason>, Reason.Serializer<?>> reasonSerializerRegister;
-    private Register<Reference<?>, Action> actionRegister;
+    private Register<Reference<? extends Action>, Action> actionRegister;
     private SerializersRegister serializersRegister;
 
     private final ReflectionCommandProcessor processor = ReflectionAPI.createWCommand();
@@ -152,16 +163,18 @@ public class wReport implements wReportInfos, ConfigurationUpdater {
 
         chatHistory = new ChatHistory();
         reasonRegister = new BaseReasonManager();
+
+        actionProcessor = new ActionProcessor(this.game, processor);
+        actionRegister = new ActionRegister(processor);
+
         reportManager = new Reports(this, actionRegister, actionProcessor);
 
-        commandRegister = new CommandRegister(reportManager);
+        commandRegister = new CommandRegister(reportManager, processor, actionRegister);
         defaultReasonsRegister = new DefaultReasonsRegister();
         eventRegister = new EventRegister();
         serviceRegister = new ServiceRegister();
         reasonSerializerRegister = new ReasonSerializerRegister();
-        actionRegister = new ActionRegister(processor);
         serializersRegister = new SerializersRegister();
-        actionProcessor = new ActionProcessor(this.game, processor);
 
         wReportPlugin = this;
 
@@ -177,7 +190,6 @@ public class wReport implements wReportInfos, ConfigurationUpdater {
         serviceRegister.doRegister(wReportPlugin, game, logger);
 
         eventRegister.doRegister(wReportPlugin, game, logger);
-        commandRegister.doRegister(wReportPlugin, game, logger);
 
         reasonSerializerRegister.tryRegister(wReportPlugin, game, logger, Aggression.class, new Aggression.Serializer());
 
@@ -211,9 +223,10 @@ public class wReport implements wReportInfos, ConfigurationUpdater {
         TypeSerializerCollection serializers = TypeSerializers.getDefaultSerializers().newChild();
 
         serializers.registerType(TypeToken.of(UUID.class), new UUIDSerializer());
+        serializers.registerType(TypeToken.of(User.class), new UserSerializer(userStorageService));
         serializers.registerType(TypeToken.of(ReportType.class), new ReportTypeSerializer());
         serializers.registerType(TypeToken.of(Reason.class), new ReasonSerializer(getReasonSerializerRegister()));
-        serializers.registerType(TypeToken.of(IReportManager.class), new PlayerReportData(game, logger, serializersRegister, userStorageService, this));
+        serializers.registerType(TypeToken.of(IReportManager.class), new PlayerReportSerializer(game, logger, serializersRegister, userStorageService, this, actionRegister, actionProcessor));
 
         ConfigurationOptions options = ConfigurationOptions.defaults().setSerializers(serializers);
 
@@ -221,6 +234,8 @@ public class wReport implements wReportInfos, ConfigurationUpdater {
             rootNode = loader.load(options);
 
             rootNode.getValue(TypeToken.of(IReportManager.class), reportManager).exportTo(reportManager);
+
+            commandRegister.doRegister(wReportPlugin, game, logger);
         } catch (IOException | ObjectMappingException e) {
             throw new RuntimeException(e);
         }
