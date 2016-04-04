@@ -10,11 +10,18 @@ A plugin for Sponge to report bad players and start a vote kick (under developme
 
 #### Reasons
 
+##### Players
+
 - [x] Aggression
 - [ ] Illegal Program
 - [ ] Bug Abuse
 - [ ] Flood
 - [ ] Spam
+
+##### Others
+
+- [ ] Bug
+- [ ] Others (like suggestions)
 
 #### Action
 
