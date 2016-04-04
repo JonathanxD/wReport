@@ -34,9 +34,9 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.args.CommandContext;
 import org.spongepowered.api.command.spec.CommandExecutor;
 import org.spongepowered.api.entity.living.player.Player;
+import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -56,13 +56,6 @@ public class PlayerReportCommand extends wCommandBase implements CommandExecutor
         this.reportManager = reportManager;
     }
 
-    /*
-GenericArguments.player(Text.of("player")),
-GenericArguments.choices(Text.of("reason"), reasonRegister.mapOfRegisteredReasonsName()),
-GenericArguments.remainingJoinedStrings(Text.of("description"))
-
-     */
-
     @Override
     public CommandResult execute(CommandSource src, CommandContext args) throws CommandException {
 
@@ -70,15 +63,19 @@ GenericArguments.remainingJoinedStrings(Text.of("description"))
         Optional<Reason> reason = args.getOne(Text.of("reason"));
         Optional<String> description = args.getOne(Text.of("description"));
 
-        if(player.isPresent() && reason.isPresent()) {
+        if (player.isPresent() && reason.isPresent()) {
 
-            reportManager.report(ReportType.System.SYSTEM_REPORT_PLAYER, Collections.singleton(player.get()), reason.get(), description.orElse("No description provided!"));
+            if (src instanceof User) {
+                reportManager.reportPlayer((User) src, Collections.singleton(player.get()), reason.get(), description.orElse("No description provided!"));
+            } else {
+                reportManager.report(ReportType.System.SYSTEM_REPORT_PLAYER, Collections.singleton(player.get()), reason.get(), description.orElse("No description provided!"));
+            }
 
-            src.sendMessage(Text.of("Player '"+player.get().getName()+"' reported!"));
+
+            src.sendMessage(Text.of("Player '" + player.get().getName() + "' reported!"));
 
             return CommandResult.success();
         }
-
 
 
         return CommandResult.empty();
