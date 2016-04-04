@@ -32,10 +32,10 @@ import com.github.jonathanxd.iutils.object.Reference;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.channel.MessageReceiver;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -75,7 +75,7 @@ public final class Reports extends BaseData<Report, BaseData<User, Data<?>>> imp
 
     @Override
     public Report report(ReportType reportType, @Nullable User source, @Nullable Collection<User> reportedUsers, Reason reportReason, String description) {
-        Report report = new Report(getFreeId(), reportType, reportReason, reportedUsers, source, description);
+        Report report = new Report(getFreeId(), Instant.now(), reportType, reportReason, reportedUsers, source, description);
 
         reportList.add(report);
 
@@ -90,10 +90,11 @@ public final class Reports extends BaseData<Report, BaseData<User, Data<?>>> imp
 
     @Override
     public boolean endReport(Report report, User judge, String description, Action action, String actionData, Predicate<User> affectedUserPredicate, MessageReceiver messageReceiver) {
-        Optional<ActionData> actionDataOptional = actionProcessor.process(report, messageReceiver, judge, report.getReportedPlayers().orElse(Collections.emptyList()).stream().filter(affectedUserPredicate).collect(Collectors.toList()), action, actionData);
+        Optional<ActionData> actionDataOptional = actionProcessor.process(report, messageReceiver, judge, report.getReportedPlayers().orElse(Collections.emptyList()).stream().filter(affectedUserPredicate).collect(Collectors.toList()), action, actionData, description);
 
         if(actionDataOptional.isPresent()) {
             report.setCloseReportData(new CloseReportData(judge, description, actionDataOptional.get()));
+            configurationUpdater.save();
             return true;
         }
 
@@ -161,7 +162,7 @@ public final class Reports extends BaseData<Report, BaseData<User, Data<?>>> imp
     }
 
     private Report recreate(long id, Report report) {
-        return new Report(id, report.getReportType(), report.getReportReason(), report.getReportedPlayers().orElse(null), report.getReportApplicant().orElse(null), report.getDescription());
+        return new Report(id, report.getCreationDate(), report.getReportType(), report.getReportReason(), report.getReportedPlayers().orElse(null), report.getReportApplicant().orElse(null), report.getDescription());
     }
 
     @Override

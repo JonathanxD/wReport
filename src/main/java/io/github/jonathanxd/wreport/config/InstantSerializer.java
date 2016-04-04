@@ -25,57 +25,32 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package io.github.jonathanxd.wreport.actions;
+package io.github.jonathanxd.wreport.config;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.google.common.reflect.TypeToken;
 
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.user.UserStorageService;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.time.Instant;
+import java.util.UUID;
 
-import io.github.jonathanxd.wreport.reports.Report;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
 
 /**
- * Created by jonathan on 03/04/16.
+ * Created by jonathan on 01/04/16.
  */
-public class ActionData {
+public class InstantSerializer implements TypeSerializer<Instant> {
 
-    private final Reference<? extends Action> reference;
-    private final User causer;
-    private final Collection<User> affectedUsers;
-    private final Collection<String> actionArguments;
-    /**
-     * Reflection accessed from {@link io.github.jonathanxd.wreport.config.ReportSerializer}
-      */
-
-    private final Report report;
-
-    public ActionData(Reference<? extends Action> reference, User causer, Collection<User> affectedUsers, Collection<String> actionArguments, Report report) {
-        this.reference = reference;
-        this.causer = causer;
-        this.affectedUsers = affectedUsers;
-        this.actionArguments = actionArguments;
-        this.report = report;
+    @Override
+    public Instant deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
+        return Instant.parse(value.getValue(TypeToken.of(String.class)));
     }
 
-    public Collection<String> getActionArguments() {
-        return actionArguments;
-    }
-
-    public Collection<User> getAffectedUsers() {
-        return affectedUsers;
-    }
-
-    public Reference<? extends Action> getReference() {
-        return reference;
-    }
-
-    public Optional<User> getCauser() {
-        return Optional.ofNullable(causer);
-    }
-
-    public Report getReport() {
-        return report;
+    @Override
+    public void serialize(TypeToken<?> type, Instant obj, ConfigurationNode value) throws ObjectMappingException {
+        value.setValue(TypeToken.of(String.class), obj.toString());
     }
 }

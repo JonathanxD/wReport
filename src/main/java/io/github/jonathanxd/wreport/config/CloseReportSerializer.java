@@ -25,46 +25,47 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package io.github.jonathanxd.wreport.history;
+package io.github.jonathanxd.wreport.config;
 
 import com.google.common.reflect.TypeToken;
 
-import java.util.List;
+import org.spongepowered.api.entity.living.player.User;
 
-import io.github.jonathanxd.wreport.data.Data;
+import io.github.jonathanxd.wreport.actions.ActionData;
+import io.github.jonathanxd.wreport.reports.CloseReportData;
+import io.github.jonathanxd.wreport.utils.func.ThrowingConsumer;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
 
-public class ChatHistory extends PlayerHistory<String> {
+/**
+ * Created by jonathan on 03/04/16.
+ */
+public class CloseReportSerializer implements TypeSerializer<CloseReportData> {
 
-    public static class Serializer implements io.github.jonathanxd.wreport.serializer.Serializer<BaseHistoryData.HistoryList<String>> {
+    private static final String CAUSER_NODE = "causer";
+    private static final String DESCRIPTION_NODE = "description";
+    private static final String ACTION_DATA_NODE = "actionData";
 
-        @Override
-        public void serialize(Data<BaseHistoryData.HistoryList<String>> object, ConfigurationNode node) {
-            try {
-                node.setValue(new TypeToken<List<String>>() {
-                }, object.getData());
-            } catch (ObjectMappingException e) {
-                e.printStackTrace();
-            }
-        }
+    @Override
+    public CloseReportData deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
 
-        @SuppressWarnings("unchecked")
-        @Override
-        public BaseHistoryData.HistoryList<String> deserialize(ConfigurationNode node) {
+        User judge = value.getNode(CAUSER_NODE).getValue(TypeToken.of(User.class), (User) null);
 
-            BaseHistoryData.HistoryList historyList = new BaseHistoryData.HistoryList();
+        String description = value.getNode(DESCRIPTION_NODE).getValue(TypeToken.of(String.class), (String) null);
 
-            try {
-                List<String> value = node.getValue(new TypeToken<List<String>>() {
-                });
+        ActionData actionData = value.getNode(ACTION_DATA_NODE).getValue(TypeToken.of(ActionData.class));
 
-                historyList.addAll(value);
-            } catch (ObjectMappingException e) {
-                e.printStackTrace();
-            }
+        return new CloseReportData(judge, description, actionData);
+    }
 
-            return historyList;
-        }
+    @Override
+    public void serialize(TypeToken<?> type, CloseReportData obj, ConfigurationNode value) throws ObjectMappingException {
+
+        obj.getJudge().ifPresent((ThrowingConsumer<User>) c -> value.getNode(CAUSER_NODE).setValue(TypeToken.of(User.class), c));
+
+        value.getNode(DESCRIPTION_NODE).setValue(TypeToken.of(String.class), obj.getDescription());
+
+        value.getNode(ACTION_DATA_NODE).setValue(TypeToken.of(ActionData.class), obj.getAction());
     }
 }

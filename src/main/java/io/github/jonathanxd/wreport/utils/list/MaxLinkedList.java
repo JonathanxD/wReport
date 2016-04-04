@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import io.github.jonathanxd.wreport.data.Data;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 
@@ -144,9 +145,9 @@ public class MaxLinkedList<T> extends LinkedList<T> {
 	public static class Serializer implements io.github.jonathanxd.wreport.serializer.Serializer<MaxLinkedList<?>> {
 
 		@Override
-		public void serialize(MaxLinkedList<?> object, ConfigurationNode node) {
+		public void serialize(Data<MaxLinkedList<?>> object, ConfigurationNode node) {
 			try {
-				node.setValue(TypeToken.of(List.class), object);
+				node.setValue(TypeToken.of(List.class), object.getData());
 			} catch (ObjectMappingException e) {
 				e.printStackTrace();
 			}

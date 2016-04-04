@@ -39,6 +39,7 @@ import org.spongepowered.api.service.ban.BanService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.util.ban.Ban;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -53,24 +54,27 @@ public class BanAction implements Action {
 
     @Command(desc = "Ban player, Ban time format: [XyXmoXdXhXmXs]. y = years, mo = months, d = days, h = hours, m = minutes, s = seconds")
     public Result<State> ban(@Argument(id = "Ban Time") Instant time,
-                      @Info Information<MessageReceiver> receiverInformation,
-                      @Info Information<User> causer,
-                      @Info Information<Report> reportInformation,
-                      @Info(tags = "affectedPlayers") Information<Collection<User>> affectedPlayers,
-                      @Info Information<BanService> banServiceInfo) {
+                             @Info Information<MessageReceiver> receiverInformation,
+                             @Info Information<User> causer,
+                             @Info Information<Report> reportInformation,
+                             @Info(tags = "description") Information<String> description,
+                             @Info(tags = "affectedPlayers") Information<Collection<User>> affectedPlayers,
+                             @Info Information<BanService> banServiceInfo) {
+
+        if (!banServiceInfo.isPresent()) {
+            throw new RuntimeException("Cannot get ban service");
+        }
+
+        BanService banService = banServiceInfo.get();
+
 
         Report report = reportInformation.get();
         MessageReceiver messageReceiver = receiverInformation.get();
 
-        if (!causer.isPresent()) {
-            messageReceiver.sendMessage(Text.of(TextColors.RED, "No causer"));
-        }
-
-        messageReceiver.sendMessage(Text.of(TextColors.GREEN, "Time ", time));
-        messageReceiver.sendMessage(Text.of(TextColors.GREEN, "Report ", report));
-        messageReceiver.sendMessage(Text.of(TextColors.GREEN, "Affected ", affectedPlayers.get().toString()));
-        messageReceiver.sendMessage(Text.of(TextColors.GREEN, "BanSrv ", banServiceInfo.get()));
-
+        affectedPlayers.get().forEach(user -> {
+            banService.addBan(Ban.builder().profile(user.getProfile()).reason(Text.of(TextColors.RED, description)).startDate(Instant.now()).expirationDate(time).build());
+            messageReceiver.sendMessage(Text.of(TextColors.RED, "Banned '", user.getName(), "'"));
+        });
 
         return new Result<>(State.OK, State.OK);
 

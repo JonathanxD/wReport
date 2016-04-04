@@ -32,6 +32,7 @@ import com.google.common.base.Objects;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -45,6 +46,7 @@ import io.github.jonathanxd.wreport.reports.reasons.Reason;
 public class Report {
 
     private final long id;
+    private final Instant creationDate;
     private final ReportType reportType;
     private final Reason reportReason;
     private final Collection<User> reportedPlayers;
@@ -53,8 +55,9 @@ public class Report {
 
     private CloseReportData closeReportData = null;
 
-    public Report(long id, ReportType reportType, Reason reportReason, Collection<User> reportedPlayers, User reportApplicant, String description) {
+    public Report(long id, Instant creationDate, ReportType reportType, Reason reportReason, Collection<User> reportedPlayers, User reportApplicant, String description) {
         this.id = id;
+        this.creationDate = creationDate;
         this.reportType = reportType;
         this.reportReason = reportReason;
         this.reportedPlayers = reportedPlayers;
@@ -62,15 +65,20 @@ public class Report {
         this.description = description;
     }
 
-    public void setCloseReportData(CloseReportData closeReportData) {
-        if(this.closeReportData != null) {
-            throw new IllegalStateException("Already closed!");
-        }
-        this.closeReportData = closeReportData;
+
+    public Instant getCreationDate() {
+        return creationDate;
     }
 
     public Optional<CloseReportData> getCloseReportData() {
         return Optional.ofNullable(closeReportData);
+    }
+
+    public void setCloseReportData(CloseReportData closeReportData) {
+        if (this.closeReportData != null) {
+            throw new IllegalStateException("Already closed!");
+        }
+        this.closeReportData = closeReportData;
     }
 
     public ReportType getReportType() {

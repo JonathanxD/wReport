@@ -78,13 +78,17 @@ public class ActionProcessor {
         });
     }
 
-    public Optional<ActionData> process(Report report, MessageReceiver receiver, User causer, Collection<User> affectedPlayers, Action action, String actionData) {
+    public Optional<ActionData> process(Report report, MessageReceiver receiver, User causer, Collection<User> affectedPlayers, Action action, String actionData, String description) {
 
         InformationRegister informationRegister = informationBuilder.build();
 
 
         informationRegister.register(new InfoId("messager", MessageReceiver.class), receiver, Reference.aEnd(MessageReceiver.class));
         informationRegister.register(new InfoId("report", Report.class), report, Reference.aEnd(Report.class));
+
+        if(description != null) {
+            informationRegister.register(new InfoId("description", Description.class), description, Reference.aEnd(String.class));
+        }
 
         if(causer != null) {
             informationRegister.register(new InfoId("causer", User.class), causer, Reference.aEnd(User.class));
@@ -119,5 +123,6 @@ public class ActionProcessor {
     }
 
     public static class AffectedPlayers {}
+    public static class Description {}
 
 }

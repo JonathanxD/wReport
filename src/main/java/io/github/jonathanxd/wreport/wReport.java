@@ -54,13 +54,21 @@ import java.util.Optional;
 import java.util.UUID;
 
 import io.github.jonathanxd.wreport.actions.Action;
+import io.github.jonathanxd.wreport.actions.ActionData;
 import io.github.jonathanxd.wreport.actions.ActionProcessor;
 import io.github.jonathanxd.wreport.actions.BanAction;
+import io.github.jonathanxd.wreport.config.ActionDataSerializer;
+import io.github.jonathanxd.wreport.config.BaseUserDataSerializer;
+import io.github.jonathanxd.wreport.config.CloseReportSerializer;
+import io.github.jonathanxd.wreport.config.InstantSerializer;
 import io.github.jonathanxd.wreport.config.ReasonSerializer;
+import io.github.jonathanxd.wreport.config.ReportSerializer;
 import io.github.jonathanxd.wreport.config.ReportTypeSerializer;
 import io.github.jonathanxd.wreport.config.UUIDSerializer;
 import io.github.jonathanxd.wreport.config.PlayerReportSerializer;
 import io.github.jonathanxd.wreport.config.UserSerializer;
+import io.github.jonathanxd.wreport.config.UsersSerializer;
+import io.github.jonathanxd.wreport.config.tokens.GlobalTokens;
 import io.github.jonathanxd.wreport.data.Reports;
 import io.github.jonathanxd.wreport.exception.CannotFoundDeclaration;
 import io.github.jonathanxd.wreport.history.ChatHistory;
@@ -75,7 +83,9 @@ import io.github.jonathanxd.wreport.registry.registers.EventRegister;
 import io.github.jonathanxd.wreport.registry.registers.ReasonSerializerRegister;
 import io.github.jonathanxd.wreport.registry.registers.SerializersRegister;
 import io.github.jonathanxd.wreport.registry.registers.ServiceRegister;
+import io.github.jonathanxd.wreport.reports.CloseReportData;
 import io.github.jonathanxd.wreport.reports.IReportManager;
+import io.github.jonathanxd.wreport.reports.Report;
 import io.github.jonathanxd.wreport.reports.ReportType;
 import io.github.jonathanxd.wreport.reports.reasons.Aggression;
 import io.github.jonathanxd.wreport.reports.reasons.Reason;
@@ -193,6 +203,7 @@ public class wReport implements wReportInfos, ConfigurationUpdater {
 
         reasonSerializerRegister.tryRegister(wReportPlugin, game, logger, Aggression.class, new Aggression.Serializer());
 
+
         actionRegister.tryRegister(wReportPlugin, game, logger, Reference.aEnd(BanAction.class), new BanAction());
 
         serializersRegister.tryRegister(wReportPlugin, game, logger, Reference.aEnd(ChatHistory.class), new ChatHistory.Serializer());
@@ -222,8 +233,15 @@ public class wReport implements wReportInfos, ConfigurationUpdater {
 
         TypeSerializerCollection serializers = TypeSerializers.getDefaultSerializers().newChild();
 
+        serializers.registerType(TypeToken.of(ActionData.class), new ActionDataSerializer());
+        serializers.registerType(GlobalTokens.BASE_USER_DATA_TOKEN, new BaseUserDataSerializer(serializersRegister, userStorageService, logger));
+        serializers.registerType(TypeToken.of(CloseReportData.class), new CloseReportSerializer());
+        serializers.registerType(TypeToken.of(Instant.class), new InstantSerializer());
+        serializers.registerType(TypeToken.of(Report.class), new ReportSerializer());
+
         serializers.registerType(TypeToken.of(UUID.class), new UUIDSerializer());
         serializers.registerType(TypeToken.of(User.class), new UserSerializer(userStorageService));
+        serializers.registerType(GlobalTokens.USERS_TOKEN, new UsersSerializer(userStorageService));
         serializers.registerType(TypeToken.of(ReportType.class), new ReportTypeSerializer());
         serializers.registerType(TypeToken.of(Reason.class), new ReasonSerializer(getReasonSerializerRegister()));
         serializers.registerType(TypeToken.of(IReportManager.class), new PlayerReportSerializer(game, logger, serializersRegister, userStorageService, this, actionRegister, actionProcessor));

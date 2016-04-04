@@ -27,6 +27,7 @@
  */
 package io.github.jonathanxd.wreport.serializer;
 
+import io.github.jonathanxd.wreport.data.Data;
 import ninja.leaping.configurate.ConfigurationNode;
 
 /**
@@ -34,13 +35,13 @@ import ninja.leaping.configurate.ConfigurationNode;
  */
 public interface Serializer<T> {
 
-    void serialize(T object, ConfigurationNode node);
+    void serialize(Data<T> object, ConfigurationNode node);
 
     T deserialize(ConfigurationNode node);
 
     @SuppressWarnings("unchecked")
-    static <T> void helpSerialize(Object o, Serializer<T> serializer, ConfigurationNode node) {
-        serializer.serialize((T) o, node);
+    static <T> void helpSerialize(Data<?> o, Serializer<T> serializer, ConfigurationNode node) {
+        serializer.serialize((Data<T>) o, node);
     }
 
     @SuppressWarnings("unchecked")

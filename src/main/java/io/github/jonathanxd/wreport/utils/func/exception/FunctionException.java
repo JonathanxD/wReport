@@ -25,57 +25,29 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package io.github.jonathanxd.wreport.actions;
-
-import com.github.jonathanxd.iutils.object.Reference;
-
-import org.spongepowered.api.entity.living.player.User;
-
-import java.util.Collection;
-import java.util.Optional;
-
-import io.github.jonathanxd.wreport.reports.Report;
+package io.github.jonathanxd.wreport.utils.func.exception;
 
 /**
  * Created by jonathan on 03/04/16.
  */
-public class ActionData {
-
-    private final Reference<? extends Action> reference;
-    private final User causer;
-    private final Collection<User> affectedUsers;
-    private final Collection<String> actionArguments;
-    /**
-     * Reflection accessed from {@link io.github.jonathanxd.wreport.config.ReportSerializer}
-      */
-
-    private final Report report;
-
-    public ActionData(Reference<? extends Action> reference, User causer, Collection<User> affectedUsers, Collection<String> actionArguments, Report report) {
-        this.reference = reference;
-        this.causer = causer;
-        this.affectedUsers = affectedUsers;
-        this.actionArguments = actionArguments;
-        this.report = report;
+public class FunctionException extends RuntimeException {
+    public FunctionException() {
+        super();
     }
 
-    public Collection<String> getActionArguments() {
-        return actionArguments;
+    public FunctionException(String message) {
+        super(message);
     }
 
-    public Collection<User> getAffectedUsers() {
-        return affectedUsers;
+    public FunctionException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public Reference<? extends Action> getReference() {
-        return reference;
+    public FunctionException(Throwable cause) {
+        super(cause);
     }
 
-    public Optional<User> getCauser() {
-        return Optional.ofNullable(causer);
-    }
-
-    public Report getReport() {
-        return report;
+    protected FunctionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

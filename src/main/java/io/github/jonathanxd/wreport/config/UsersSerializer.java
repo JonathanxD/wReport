@@ -25,57 +25,42 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package io.github.jonathanxd.wreport.actions;
+package io.github.jonathanxd.wreport.config;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.google.common.reflect.TypeToken;
 
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.service.user.UserStorageService;
 
 import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-import io.github.jonathanxd.wreport.reports.Report;
+import ninja.leaping.configurate.ConfigurationNode;
+import ninja.leaping.configurate.objectmapping.ObjectMappingException;
+import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
 
 /**
  * Created by jonathan on 03/04/16.
  */
-public class ActionData {
-
-    private final Reference<? extends Action> reference;
-    private final User causer;
-    private final Collection<User> affectedUsers;
-    private final Collection<String> actionArguments;
-    /**
-     * Reflection accessed from {@link io.github.jonathanxd.wreport.config.ReportSerializer}
-      */
-
-    private final Report report;
-
-    public ActionData(Reference<? extends Action> reference, User causer, Collection<User> affectedUsers, Collection<String> actionArguments, Report report) {
-        this.reference = reference;
-        this.causer = causer;
-        this.affectedUsers = affectedUsers;
-        this.actionArguments = actionArguments;
-        this.report = report;
+public class UsersSerializer implements TypeSerializer<Collection<User>> {
+    private final UserStorageService userStorageService;
+    public UsersSerializer(UserStorageService userStorageService) {
+        this.userStorageService = userStorageService;
     }
 
-    public Collection<String> getActionArguments() {
-        return actionArguments;
+    @Override
+    public Collection<User> deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
+
+        List<String> list = value.getList(TypeToken.of(String.class));
+
+        return list.stream().map(s -> userStorageService.<User>get(UUID.fromString(s)).<RuntimeException>orElseThrow(() -> new RuntimeException("Cannot deserialize user uuid '" + s + "'"))).collect(Collectors.toList());
     }
 
-    public Collection<User> getAffectedUsers() {
-        return affectedUsers;
-    }
-
-    public Reference<? extends Action> getReference() {
-        return reference;
-    }
-
-    public Optional<User> getCauser() {
-        return Optional.ofNullable(causer);
-    }
-
-    public Report getReport() {
-        return report;
+    @Override
+    public void serialize(TypeToken<?> type, Collection<User> obj, ConfigurationNode value) throws ObjectMappingException {
+        value.setValue(obj.stream().map(d -> d.getUniqueId().toString()).collect(Collectors.toList()));
     }
 }
+

@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import io.github.jonathanxd.wreport.data.Data;
 import io.github.jonathanxd.wreport.utils.list.MaxLinkedList;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
@@ -186,9 +187,9 @@ public class BaseHistoryData<T, E> implements IHistoryData<T, E> {
         public static class Serializer implements io.github.jonathanxd.wreport.serializer.Serializer<HistoryList<?>> {
 
             @Override
-            public void serialize(HistoryList<?> object, ConfigurationNode node) {
+            public void serialize(Data<HistoryList<?>> object, ConfigurationNode node) {
                 try {
-                    node.setValue(TypeToken.of(List.class), object);
+                    node.setValue(new TypeToken<List<Object>>() {}, (List<Object>) object.getData());
                 } catch (ObjectMappingException e) {
                     e.printStackTrace();
                 }

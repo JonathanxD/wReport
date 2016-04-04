@@ -25,57 +25,24 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package io.github.jonathanxd.wreport.actions;
+package io.github.jonathanxd.wreport.utils.func;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import java.util.function.Consumer;
 
-import org.spongepowered.api.entity.living.player.User;
-
-import java.util.Collection;
-import java.util.Optional;
-
-import io.github.jonathanxd.wreport.reports.Report;
+import io.github.jonathanxd.wreport.utils.func.exception.FunctionException;
 
 /**
  * Created by jonathan on 03/04/16.
  */
-public class ActionData {
-
-    private final Reference<? extends Action> reference;
-    private final User causer;
-    private final Collection<User> affectedUsers;
-    private final Collection<String> actionArguments;
-    /**
-     * Reflection accessed from {@link io.github.jonathanxd.wreport.config.ReportSerializer}
-      */
-
-    private final Report report;
-
-    public ActionData(Reference<? extends Action> reference, User causer, Collection<User> affectedUsers, Collection<String> actionArguments, Report report) {
-        this.reference = reference;
-        this.causer = causer;
-        this.affectedUsers = affectedUsers;
-        this.actionArguments = actionArguments;
-        this.report = report;
+public interface ThrowingConsumer<T> extends Consumer<T> {
+    @Override
+    default void accept(T t) {
+        try {
+            consume(t);
+        } catch (Throwable throwable) {
+            throw new FunctionException(throwable);
+        }
     }
 
-    public Collection<String> getActionArguments() {
-        return actionArguments;
-    }
-
-    public Collection<User> getAffectedUsers() {
-        return affectedUsers;
-    }
-
-    public Reference<? extends Action> getReference() {
-        return reference;
-    }
-
-    public Optional<User> getCauser() {
-        return Optional.ofNullable(causer);
-    }
-
-    public Report getReport() {
-        return report;
-    }
+    void consume(T t) throws Throwable;
 }

@@ -55,6 +55,8 @@ import com.github.jonathanxd.iutils.object.Reference;
  * An {@link org.spongepowered.api.text.channel.MessageReceiver} tagged as 'messager'
  *
  * A {@link io.github.jonathanxd.wreport.reports.Report} tagged as 'report'.
+ *
+ * A {@link String} tagged as 'description'
  */
 public interface Action {
 
