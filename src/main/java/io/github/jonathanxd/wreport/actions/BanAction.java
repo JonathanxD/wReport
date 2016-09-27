@@ -27,7 +27,7 @@
  */
 package io.github.jonathanxd.wreport.actions;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 import com.github.jonathanxd.wcommands.ext.reflect.arguments.Argument;
 import com.github.jonathanxd.wcommands.ext.reflect.commands.Command;
 import com.github.jonathanxd.wcommands.ext.reflect.infos.Info;
@@ -86,7 +86,7 @@ public class BanAction implements Action {
     }
 
     @Override
-    public Reference<? extends Action> getReference() {
-        return Reference.aEnd(BanAction.class);
+    public TypeInfo<? extends Action> getReference() {
+        return TypeInfo.aEnd(BanAction.class);
     }
 }

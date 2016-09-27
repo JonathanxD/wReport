@@ -29,10 +29,9 @@ package io.github.jonathanxd.wreport.commands.wext.common;
 
 import com.google.common.reflect.TypeToken;
 
-import com.github.jonathanxd.iutils.data.ReferenceData;
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
+import com.github.jonathanxd.iutils.object.TypeUtil;
 import com.github.jonathanxd.wcommands.arguments.ArgumentSpec;
-import com.github.jonathanxd.wcommands.util.reflection.TypeUtil;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -47,27 +46,22 @@ import io.github.jonathanxd.wreport.commands.wext.common.id.CommonIDs;
  */
 public class ArgumentCheck {
 
+    @SuppressWarnings("unchecked")
     public static <T> boolean argumentCheck(ArgumentSpec<?, ?> spec, Class<? extends T> expected) {
 
         if (checkId(spec, expected) || checkInstance(spec, expected)) {
             return true;
         }
 
-        ReferenceData referenceData = spec.getReferenceData();
-
-        Optional<Object> data = referenceData.getData(Reference.aEnd(Reference.class));
+        Optional<TypeInfo<?>> data = ((ArgumentSpec) spec).getValueType();
 
         if (data.isPresent()) {
-            Object dataObject = data.get();
+            TypeInfo dataReference = (TypeInfo) data.get();
 
-            if (dataObject instanceof Reference) {
-                Reference dataReference = (Reference) dataObject;
-
-                if (dataReference.compareToAssignable(Reference.aEnd(expected)) == 0) {
-                    return true;
-                }
-
+            if (dataReference.compareToAssignable(TypeInfo.aEnd(expected)) == 0) {
+                return true;
             }
+
 
         }
 
@@ -98,12 +92,12 @@ public class ArgumentCheck {
 
                 if (theType instanceof ParameterizedType) {
 
-                    Reference<?> reference = TypeUtil.toReference((ParameterizedType) theType);
+                    TypeInfo<?> reference = TypeUtil.toReference((ParameterizedType) theType);
 
                     if (reference.getRelated().length == 2) {
-                        Reference<?> ref = reference.getRelated()[1];
+                        TypeInfo<?> ref = reference.getRelated()[1];
 
-                        if (ref.compareToAssignable(Reference.aEnd(type)) == 0) {
+                        if (ref.compareToAssignable(TypeInfo.aEnd(type)) == 0) {
                             return true;
                         }
                     } else {

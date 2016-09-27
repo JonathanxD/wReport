@@ -30,10 +30,9 @@ package io.github.jonathanxd.wreport;
 import com.google.common.reflect.TypeToken;
 import com.google.inject.Inject;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 import com.github.jonathanxd.wcommands.ext.reflect.ReflectionAPI;
 import com.github.jonathanxd.wcommands.ext.reflect.processor.ReflectionCommandProcessor;
-import com.github.jonathanxd.wcommands.processor.CommonProcessor;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
@@ -87,7 +86,7 @@ import io.github.jonathanxd.wreport.reports.CloseReportData;
 import io.github.jonathanxd.wreport.reports.IReportManager;
 import io.github.jonathanxd.wreport.reports.Report;
 import io.github.jonathanxd.wreport.reports.ReportType;
-import io.github.jonathanxd.wreport.reports.reasons.Aggression;
+import io.github.jonathanxd.wreport.reports.reasons.common.Aggression;
 import io.github.jonathanxd.wreport.reports.reasons.Reason;
 import io.github.jonathanxd.wreport.statics.wReportInfos;
 import io.github.jonathanxd.wreport.translator.InstantTranslator;
@@ -121,7 +120,7 @@ public class wReport implements wReportInfos, ConfigurationUpdater {
     private DefaultRegister serviceRegister;
 
     private Register<Class<? extends Reason>, Reason.Serializer<?>> reasonSerializerRegister;
-    private Register<Reference<? extends Action>, Action> actionRegister;
+    private Register<TypeInfo<? extends Action>, Action> actionRegister;
     private SerializersRegister serializersRegister;
 
     private final ReflectionCommandProcessor processor = ReflectionAPI.createWCommand();
@@ -169,7 +168,7 @@ public class wReport implements wReportInfos, ConfigurationUpdater {
     @Listener
     public void gamePreInitialization(GamePreInitializationEvent gamePreInitEvent) {
 
-        processor.addGlobalTranslator(Reference.aEnd(Instant.class), InstantTranslator.class);
+        processor.addGlobalTranslator(TypeInfo.aEnd(Instant.class), InstantTranslator.class);
 
         chatHistory = new ChatHistory();
         reasonRegister = new BaseReasonManager();
@@ -204,9 +203,9 @@ public class wReport implements wReportInfos, ConfigurationUpdater {
         reasonSerializerRegister.tryRegister(wReportPlugin, game, logger, Aggression.class, new Aggression.Serializer());
 
 
-        actionRegister.tryRegister(wReportPlugin, game, logger, Reference.aEnd(BanAction.class), new BanAction());
+        actionRegister.tryRegister(wReportPlugin, game, logger, TypeInfo.aEnd(BanAction.class), new BanAction());
 
-        serializersRegister.tryRegister(wReportPlugin, game, logger, Reference.aEnd(ChatHistory.class), new ChatHistory.Serializer());
+        serializersRegister.tryRegister(wReportPlugin, game, logger, TypeInfo.aEnd(ChatHistory.class), new ChatHistory.Serializer());
 
 
         logger.info(String.format("%s initialized!", NAME));

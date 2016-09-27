@@ -32,7 +32,7 @@ import org.spongepowered.api.Game;
 import io.github.jonathanxd.wreport.wReport;
 import io.github.jonathanxd.wreport.registry.IReasonRegister;
 import io.github.jonathanxd.wreport.registry.DefaultRegister;
-import io.github.jonathanxd.wreport.reports.reasons.Aggression;
+import io.github.jonathanxd.wreport.reports.reasons.common.Aggression;
 import io.github.jonathanxd.wreport.reports.reasons.Reason;
 
 public class DefaultReasonsRegister implements DefaultRegister {

@@ -29,7 +29,7 @@ package io.github.jonathanxd.wreport.config;
 
 import com.google.common.reflect.TypeToken;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 
 import org.spongepowered.api.entity.living.player.User;
 
@@ -60,7 +60,7 @@ public class ActionDataSerializer implements TypeSerializer<ActionData> {
 
             Collection<User> affectedUsers = value.getNode(AFFECTED_USERS_NODE).getValue(GlobalTokens.USERS_TOKEN);
 
-            Reference<? extends Action> reference = (Reference<? extends Action>) Reference.fromFullString(value.getNode(TYPE_NODE).getValue(TypeToken.of(String.class))).get(0);
+            TypeInfo<? extends Action> reference = (TypeInfo<? extends Action>) TypeInfo.fromFullString(value.getNode(TYPE_NODE).getValue(TypeToken.of(String.class))).get(0);
 
             Collection<String> arguments = value.getNode(ARGUMENTS_NODE).getValue(GlobalTokens.STRING_COLL_TOKEN);
 

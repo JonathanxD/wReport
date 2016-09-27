@@ -27,9 +27,13 @@
  */
 package io.github.jonathanxd.wreport.data;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Created by jonathan on 03/12/15.
@@ -39,19 +43,19 @@ public class BaseData<OWNER, DATA extends Data> extends Data<BaseData<OWNER, DAT
     private Map<OWNER, DATA> dataStoreMap = new HashMap<>();
 
     public BaseData() {
-        super(Reference.aEnd(BaseData.class));
+        super(TypeInfo.aEnd(BaseData.class));
     }
 
-    public final boolean contains(OWNER owner){
+    public final boolean contains(OWNER owner) {
         return dataStoreMap.containsKey(owner);
     }
 
-    public final Optional<DATA> getData(OWNER owner){
+    public final Optional<DATA> getData(OWNER owner) {
         return contains(owner) ? Optional.of(dataStoreMap.get(owner))
-            : Optional.empty();
+                : Optional.empty();
     }
 
-    public final Optional<DATA> setOwnerData(OWNER owner, DATA data){
+    public final Optional<DATA> setOwnerData(OWNER owner, DATA data) {
 
         DATA oldData = dataStoreMap.put(owner, data);
         return Optional.ofNullable(oldData);
@@ -61,7 +65,7 @@ public class BaseData<OWNER, DATA extends Data> extends Data<BaseData<OWNER, DAT
         return Collections.synchronizedMap(dataStoreMap);
     }
 
-    public Set<Map.Entry<OWNER, DATA>> entrySet(){
+    public Set<Map.Entry<OWNER, DATA>> entrySet() {
         return dataStoreMap.entrySet();
     }
 }

@@ -27,7 +27,7 @@
  */
 package io.github.jonathanxd.wreport.actions;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 import com.github.jonathanxd.wcommands.WCommandCommon;
 import com.github.jonathanxd.wcommands.commandstring.CommonCommandStringParser;
 import com.github.jonathanxd.wcommands.infos.InfoId;
@@ -68,7 +68,7 @@ public class ActionProcessor {
         this.informationBuilder = InformationRegister.builder(wCommandCommon);
         this.requirements = new Requirements();
 
-        this.informationBuilder.with(Game.class, "game", game, "Game instance!", Reference.aEnd(Game.class));
+        this.informationBuilder.with(Game.class, "game", game, "Game instance!", TypeInfo.aEnd(Game.class));
         this.informationBuilder.withProvider((requestId, requestingType) -> {
             if(serviceManager.isRegistered(requestingType.getAClass())) {
                 return Optional.of(new Information<>(requestId, serviceManager.provideUnchecked(requestingType.getAClass()), requestingType));
@@ -83,22 +83,22 @@ public class ActionProcessor {
         InformationRegister informationRegister = informationBuilder.build();
 
 
-        informationRegister.register(new InfoId("messager", MessageReceiver.class), receiver, Reference.aEnd(MessageReceiver.class));
-        informationRegister.register(new InfoId("report", Report.class), report, Reference.aEnd(Report.class));
+        informationRegister.register(new InfoId("messager", MessageReceiver.class), receiver, TypeInfo.aEnd(MessageReceiver.class));
+        informationRegister.register(new InfoId("report", Report.class), report, TypeInfo.aEnd(Report.class));
 
         if(description != null) {
-            informationRegister.register(new InfoId("description", Description.class), description, Reference.aEnd(String.class));
+            informationRegister.register(new InfoId("description", Description.class), description, TypeInfo.aEnd(String.class));
         }
 
         if(causer != null) {
-            informationRegister.register(new InfoId("causer", User.class), causer, Reference.aEnd(User.class));
+            informationRegister.register(new InfoId("causer", User.class), causer, TypeInfo.aEnd(User.class));
         }
 
         if(affectedPlayers != null) {
-            informationRegister.register(new InfoId("affectedPlayers", AffectedPlayers.class), affectedPlayers, Reference.a(Collection.class).of(User.class).build());
+            informationRegister.register(new InfoId("affectedPlayers", AffectedPlayers.class), affectedPlayers, TypeInfo.a(Collection.class).of(User.class).build());
         }
 
-        informationRegister.register(new InfoId("action", Action.class), action, Reference.aEnd(Action.class));
+        informationRegister.register(new InfoId("action", Action.class), action, TypeInfo.aEnd(Action.class));
 
         List<String> actionDataArgs;
 

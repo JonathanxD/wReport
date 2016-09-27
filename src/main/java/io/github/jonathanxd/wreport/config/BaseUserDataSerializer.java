@@ -29,7 +29,7 @@ package io.github.jonathanxd.wreport.config;
 
 import com.google.common.reflect.TypeToken;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.entity.living.player.User;
@@ -88,7 +88,7 @@ public class BaseUserDataSerializer implements TypeSerializer<BaseData<User, Dat
                     try {
                         dataTypeString = playersDataNode.getValue().getNode(reportDataTypeNode).getValue(TypeToken.of(String.class));
 
-                        Reference<?> reference = Reference.fromFullString(dataTypeString).get(0);
+                        TypeInfo<?> reference = TypeInfo.fromFullString(dataTypeString).get(0);
 
                         Data<?> data = new Data<>(reference, Serializer.helpDeserialize(serializersRegister.getUnchecked(reference), playersDataNode.getValue().getNode(reportDataObjectNode)));
 
@@ -117,9 +117,9 @@ public class BaseUserDataSerializer implements TypeSerializer<BaseData<User, Dat
 
             ConfigurationNode playerDataNode = value.getNode(userReportData.getUniqueId());
 
-            playerDataNode.getNode(reportDataTypeNode).setValue(data.getReference().toFullString());
+            playerDataNode.getNode(reportDataTypeNode).setValue(data.getDataId().toFullString());
 
-            Serializer.helpSerialize(data, serializersRegister.getUnchecked(data.getReference()), playerDataNode.getNode(reportDataObjectNode));
+            Serializer.helpSerialize(data, serializersRegister.getUnchecked(data.getDataId()), playerDataNode.getNode(reportDataObjectNode));
         });
     }
 }

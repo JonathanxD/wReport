@@ -27,22 +27,14 @@
  */
 package io.github.jonathanxd.wreport.registry.registers;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 
-import org.spongepowered.api.Game;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import io.github.jonathanxd.wreport.registry.Register;
-import io.github.jonathanxd.wreport.reports.reasons.Reason;
 import io.github.jonathanxd.wreport.serializer.Serializer;
 
 /**
  * Created by jonathan on 01/04/16.
  */
-public class SerializersRegister extends AbstractMapRegister<Reference<?>, Serializer<?>> {
+public class SerializersRegister extends AbstractMapRegister<TypeInfo<?>, Serializer<?>> {
 
     @Override
     public String getName() {

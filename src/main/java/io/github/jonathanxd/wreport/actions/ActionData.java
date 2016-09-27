@@ -27,7 +27,7 @@
  */
 package io.github.jonathanxd.wreport.actions;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 
 import org.spongepowered.api.entity.living.player.User;
 
@@ -41,7 +41,7 @@ import io.github.jonathanxd.wreport.reports.Report;
  */
 public class ActionData {
 
-    private final Reference<? extends Action> reference;
+    private final TypeInfo<? extends Action> reference;
     private final User causer;
     private final Collection<User> affectedUsers;
     private final Collection<String> actionArguments;
@@ -51,7 +51,7 @@ public class ActionData {
 
     private final Report report;
 
-    public ActionData(Reference<? extends Action> reference, User causer, Collection<User> affectedUsers, Collection<String> actionArguments, Report report) {
+    public ActionData(TypeInfo<? extends Action> reference, User causer, Collection<User> affectedUsers, Collection<String> actionArguments, Report report) {
         this.reference = reference;
         this.causer = causer;
         this.affectedUsers = affectedUsers;
@@ -67,7 +67,7 @@ public class ActionData {
         return affectedUsers;
     }
 
-    public Reference<? extends Action> getReference() {
+    public TypeInfo<? extends Action> getReference() {
         return reference;
     }
 

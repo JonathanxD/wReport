@@ -27,7 +27,7 @@
  */
 package io.github.jonathanxd.wreport.data;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.channel.MessageReceiver;
@@ -63,11 +63,11 @@ import io.github.jonathanxd.wreport.reports.reasons.Reason;
 public final class Reports extends BaseData<Report, BaseData<User, Data<?>>> implements IReportManager {
 
     private final ConfigurationUpdater configurationUpdater;
-    private final Register<Reference<? extends Action>, Action> actionRegister;
+    private final Register<TypeInfo<? extends Action>, Action> actionRegister;
     private final ActionProcessor actionProcessor;
     List<Report> reportList = new ReportList();
 
-    public Reports(ConfigurationUpdater configurationUpdater, Register<Reference<? extends Action>, Action> actionRegister, ActionProcessor actionProcessor) {
+    public Reports(ConfigurationUpdater configurationUpdater, Register<TypeInfo<? extends Action>, Action> actionRegister, ActionProcessor actionProcessor) {
         this.configurationUpdater = configurationUpdater;
         this.actionRegister = actionRegister;
         this.actionProcessor = actionProcessor;

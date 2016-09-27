@@ -40,9 +40,9 @@ repositories {
 }
 
 dependencies {
-    compile "org.spongepowered:spongeapi:4.0.3"
-    compile 'com.github.JonathanxD:JwIUtils:2.0-rev1'
-    compile 'com.github.JonathanxD:WCommands:856d78447c'
+    compile "org.spongepowered:spongeapi:5.0.0-SNAPSHOT"
+    compile 'com.github.JonathanxD:JwIUtils:2.7.0'
+    compile 'com.github.JonathanxD:WCommands:2.3.3'
 }
 
 test {

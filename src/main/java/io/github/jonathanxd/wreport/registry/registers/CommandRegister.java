@@ -27,7 +27,7 @@
  */
 package io.github.jonathanxd.wreport.registry.registers;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 import com.github.jonathanxd.wcommands.WCommandCommon;
 
 import org.spongepowered.api.Game;
@@ -51,9 +51,9 @@ public class CommandRegister implements DefaultRegister, wReportInfos {
 
     private final IReportManager reportManager;
     private final WCommandCommon wCommandCommon;
-    private final Register<Reference<? extends Action>, Action> actionRegister;
+    private final Register<TypeInfo<? extends Action>, Action> actionRegister;
 
-    public CommandRegister(IReportManager reportManager, WCommandCommon wCommandCommon, Register<Reference<? extends Action>, Action> actionRegister) {
+    public CommandRegister(IReportManager reportManager, WCommandCommon wCommandCommon, Register<TypeInfo<? extends Action>, Action> actionRegister) {
         this.reportManager = reportManager;
         this.wCommandCommon = wCommandCommon;
         this.actionRegister = actionRegister;

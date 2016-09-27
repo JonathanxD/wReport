@@ -29,7 +29,7 @@ package io.github.jonathanxd.wreport.config;
 
 import com.google.common.reflect.TypeToken;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 
 import org.slf4j.Logger;
 import org.spongepowered.api.Game;
@@ -69,10 +69,10 @@ public class PlayerReportSerializer implements TypeSerializer<IReportManager> {
     private final SerializersRegister serializersRegister;
     private final UserStorageService userStorageService;
     private final ConfigurationUpdater configurationUpdater;
-    private final Register<Reference<? extends Action>, Action> actionRegister;
+    private final Register<TypeInfo<? extends Action>, Action> actionRegister;
     private final ActionProcessor actionProcessor;
 
-    public PlayerReportSerializer(Game game, Logger logger, SerializersRegister serializersRegister, UserStorageService userStorageService, ConfigurationUpdater configurationUpdater, Register<Reference<? extends Action>, Action> actionRegister, ActionProcessor actionProcessor) {
+    public PlayerReportSerializer(Game game, Logger logger, SerializersRegister serializersRegister, UserStorageService userStorageService, ConfigurationUpdater configurationUpdater, Register<TypeInfo<? extends Action>, Action> actionRegister, ActionProcessor actionProcessor) {
         this.game = game;
         this.logger = logger;
         this.serializersRegister = serializersRegister;

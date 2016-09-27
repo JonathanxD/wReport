@@ -25,30 +25,29 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package io.github.jonathanxd.wreport.registry.registers;
+package io.github.jonathanxd.wreport.reports;
 
+import org.spongepowered.api.entity.living.player.User;
+
+import java.util.Collection;
 import java.util.Optional;
 
-import io.github.jonathanxd.wreport.reports.reasons.Reason;
+import io.github.jonathanxd.wreport.history.ChatHistory;
+import io.github.jonathanxd.wreport.wReport;
 
 /**
- * Created by jonathan on 01/04/16.
+ * Created by jonathan on 09/04/16.
  */
-public class ReasonSerializerRegister extends AbstractMapRegister<Class<? extends Reason>, Reason.Serializer<?>> {
+public class HistoryFetcher {
 
-    @Override
-    public String getName() {
-        return "ReasonSerializerRegister";
+    public static Optional<Collection<String>> getHistory(User subject) {
+        wReport wReportPlugin = wReport.wReportPlugin();
+
+        ChatHistory chatHistory = wReportPlugin.chatHistory();
+
+        Optional<Collection<String>> completeHistory = chatHistory.getCompleteHistory(subject);
+
+        return completeHistory;
     }
 
-    @Override
-    public Optional<Reason.Serializer<?>> get(Class<? extends Reason> key) {
-        Optional<Reason.Serializer<?>> serializer = super.get(key);
-
-        if(!serializer.isPresent()) {
-            return Optional.of(new Reason.DefaultSerializer(key));
-        }
-
-        return serializer;
-    }
 }

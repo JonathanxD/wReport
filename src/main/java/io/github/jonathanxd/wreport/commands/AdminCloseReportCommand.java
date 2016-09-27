@@ -28,7 +28,7 @@
 package io.github.jonathanxd.wreport.commands;
 
 import com.github.jonathanxd.iutils.object.Node;
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 import com.github.jonathanxd.wcommands.WCommandCommon;
 import com.github.jonathanxd.wcommands.command.CommandSpec;
 import com.github.jonathanxd.wcommands.ext.help.HelperAPI;
@@ -50,7 +50,6 @@ import org.spongepowered.api.text.format.TextColors;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Collection;
 import java.util.Optional;
 
 import io.github.jonathanxd.wreport.actions.Action;
@@ -62,9 +61,9 @@ public class AdminCloseReportCommand extends wCommandBase implements CommandExec
 
     private final IReportManager manager;
     private final WCommandCommon commandCommon;
-    private final Register<Reference<? extends Action>, Action> actionRegister;
+    private final Register<TypeInfo<? extends Action>, Action> actionRegister;
 
-    public AdminCloseReportCommand(Game game, IReportManager manager, WCommandCommon commandCommon, Register<Reference<? extends Action>, Action> actionRegister) {
+    public AdminCloseReportCommand(Game game, IReportManager manager, WCommandCommon commandCommon, Register<TypeInfo<? extends Action>, Action> actionRegister) {
         super(game);
         this.manager = manager;
         this.commandCommon = commandCommon;

@@ -25,17 +25,48 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package io.github.jonathanxd.wreport.annotations;
+package io.github.jonathanxd.wreport.reports.reasons.common;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
+
+import java.util.Collection;
+import java.util.Optional;
+
+import io.github.jonathanxd.wreport.data.Data;
+import io.github.jonathanxd.wreport.reports.HistoryFetcher;
+import io.github.jonathanxd.wreport.reports.reasons.Reason;
+import io.github.jonathanxd.wreport.reports.reasons.Severity;
 
 /**
- * Created by jonathan on 03/04/16.
+ * Created by jonathan on 09/04/16.
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface Property {
+public class IllegalProgram implements Reason {
+    @Override
+    public Optional<Severity> severity() {
+        return Optional.of(Severity.HIGH);
+    }
+
+    @Override
+    public Text reasonMessage() {
+        return Text.of(TextColors.RED, "Illegal Program");
+    }
+
+    @Override
+    public Optional<Data<?>> apply(User subject) {
+
+        if (subject != null) {
+            Optional<Collection<String>> history = HistoryFetcher.getHistory(subject);
+
+            if (history.isPresent()) {
+                Collection<String> strings = history.get();
+
+            }
+
+        }
+
+        return Reason.super.apply(subject);
+    }
+
 }

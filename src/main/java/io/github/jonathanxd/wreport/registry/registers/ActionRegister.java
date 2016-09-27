@@ -27,7 +27,7 @@
  */
 package io.github.jonathanxd.wreport.registry.registers;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 import com.github.jonathanxd.wcommands.ext.reflect.processor.ReflectionCommandProcessor;
 import com.github.jonathanxd.wcommands.ticket.RegistrationTicket;
 
@@ -38,7 +38,7 @@ import io.github.jonathanxd.wreport.actions.Action;
 /**
  * Created by jonathan on 03/04/16.
  */
-public class ActionRegister extends AbstractMapRegister<Reference<? extends Action>, Action> {
+public class ActionRegister extends AbstractMapRegister<TypeInfo<? extends Action>, Action> {
     private final ReflectionCommandProcessor reflectionCommandProcessor;
 
     public ActionRegister(ReflectionCommandProcessor reflectionCommandProcessor) {
@@ -46,7 +46,7 @@ public class ActionRegister extends AbstractMapRegister<Reference<? extends Acti
     }
 
     @Override
-    public boolean register(Object plugin, Game game, Reference<? extends Action> key, Action obj) {
+    public boolean register(Object plugin, Game game, TypeInfo<? extends Action> key, Action obj) {
 
         if(super.register(plugin, game, key, obj)) {
             reflectionCommandProcessor.getRegister(RegistrationTicket.empty(plugin)).addCommands(obj);

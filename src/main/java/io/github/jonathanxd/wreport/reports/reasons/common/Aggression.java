@@ -25,11 +25,11 @@
  *      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *      THE SOFTWARE.
  */
-package io.github.jonathanxd.wreport.reports.reasons;
+package io.github.jonathanxd.wreport.reports.reasons.common;
 
 import com.google.common.reflect.TypeToken;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.text.Text;
@@ -40,6 +40,7 @@ import java.util.Optional;
 
 import io.github.jonathanxd.wreport.data.Data;
 import io.github.jonathanxd.wreport.history.ChatHistory;
+import io.github.jonathanxd.wreport.reports.reasons.Reason;
 import io.github.jonathanxd.wreport.wReport;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
@@ -63,11 +64,11 @@ public class Aggression implements Reason {
 
             Optional<Collection<String>> completeHistory = chatHistory.getCompleteHistory(subject);
 
-            if(completeHistory.isPresent()) {
-                return Optional.of(new Data<>(Reference.aEnd(ChatHistory.class), completeHistory.get()));
+            if (completeHistory.isPresent()) {
+                return Optional.of(new Data<>(TypeInfo.aEnd(ChatHistory.class), completeHistory.get()));
             }
 
-            return Optional.empty();
+            return Reason.super.apply(subject);
         }
 
         return Reason.super.apply(subject);

@@ -31,7 +31,7 @@ package io.github.jonathanxd.wreport.actions;
  * Created by jonathan on 03/04/16.
  */
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 
 /**
  * Represents an 'Action'
@@ -62,7 +62,7 @@ public interface Action {
 
     String getName();
 
-    Reference<? extends Action> getReference();
+    TypeInfo<? extends Action> getReference();
 
     enum State {
         OK,

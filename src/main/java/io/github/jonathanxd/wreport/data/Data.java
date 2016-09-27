@@ -27,28 +27,28 @@
  */
 package io.github.jonathanxd.wreport.data;
 
-import com.github.jonathanxd.iutils.object.Reference;
+import com.github.jonathanxd.iutils.object.TypeInfo;
 
 /**
  * Created by jonathan on 02/04/16.
  */
 public class Data<T> {
-    private final Reference<?> reference;
+    private final TypeInfo<?> dataId;
     private final T data;
 
     @SuppressWarnings("unchecked")
-    Data(Reference<?> reference) {
-        this.reference = reference;
+    Data(TypeInfo<?> dataId) {
+        this.dataId = dataId;
         this.data = (T) this;
     }
 
-    public Data(Reference<?> reference, T data) {
-        this.reference = reference;
+    public Data(TypeInfo<?> dataId, T data) {
+        this.dataId = dataId;
         this.data = data;
     }
 
-    public Reference<?> getReference() {
-        return reference;
+    public TypeInfo<?> getDataId() {
+        return dataId;
     }
 
     public T getData() {
